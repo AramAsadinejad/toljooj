@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {Client} from 'pg';
+
+
 @Injectable()
 export class DatabaseService {
     private client: Client;
@@ -9,7 +11,7 @@ export class DatabaseService {
       user: 'postgres',
       host: '163.5.94.58',
       database: 'toljooj',
-      password: 'Erf@nk2004',
+      password: 'Erfank2004@',
       port: 5432,
     });
     this.client.connect();
