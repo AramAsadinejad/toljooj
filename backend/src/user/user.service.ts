@@ -1,32 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable,Logger } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcrypt';
+import { LoginInterface, RegisterInterface, TokenInterface, UserInterface } from './user.interface';
+import { TokenService } from 'src/token/token.service';
 @Injectable()
 export class UserService {
-    constructor(private databaseService: DatabaseService) {}
+    private readonly logger = new Logger(UserService.name);
+    constructor(private databaseService: DatabaseService,private tokenService: TokenService) {}
 
-    async signup(username: string, password: string) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const query = 'INSERT INTO users(username, password) VALUES($1, $2) RETURNING *';
-        const user = await this.databaseService.query(query, [username, hashedPassword]);
+    async signup(data:RegisterInterface):Promise<UserInterface> {
+        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const query = 'INSERT INTO users(username, password,type) VALUES($1, $2,$3) RETURNING *';
+        const user = await this.databaseService.query(query, [data.username, hashedPassword,data.type]);
         return user[0];
-      }
+    }
 
-      async login(username: string, password: string) {
+      async login(data:LoginInterface):Promise<TokenInterface> {
         const query = 'SELECT * FROM users WHERE username = $1';
-        const user = await this.databaseService.query(query, [username]);
-        
+        const user = await this.databaseService.query(query, [data.username]);
+        this.logger.debug(user[0]);
         if (!user[0]) {
           throw new Error('User not found');
         }
-    
-        const isPasswordValid = await bcrypt.compare(password, user[0].password);
+        
+        const isPasswordValid = await bcrypt.compare(data.password, user[0].password);
         if (!isPasswordValid) {
           throw new Error('Invalid password');
         }
-    
+
+
+        const token = await  this.tokenService.generateToken(user[0]);
         // Generate a JWT or session token (optional)
-        return { message: 'Login successful', user: user[0] };
+        return { token };
       }
     
     

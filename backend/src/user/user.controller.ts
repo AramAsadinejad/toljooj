@@ -1,20 +1,21 @@
 import { Controller,Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
+import { LoginInterface, RegisterInterface } from './user.interface';
 
 @Controller('user')
 export class UserController {
     constructor(private userService:UserService){}
 
-    @Post('signup')
-    async signup(@Body() body: { username: string, password: string }) {
+    @Post('register')
+    async signup(@Body() body: RegisterInterface) {
       const { username, password } = body;
-      return await this.userService.signup(username, password);
+      return await this.userService.signup(body);
     }
 
     @Post('login')
-    async login(@Body() body: { username: string, password: string }) {
-      const { username, password } = body;
-      return await this.userService.login(username, password);
+    async login(@Body() body: LoginInterface) {
+      // const { username, password } = body;
+      return await this.userService.login(body);
     }
 }
   
