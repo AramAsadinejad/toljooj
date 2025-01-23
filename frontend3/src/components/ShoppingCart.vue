@@ -11,7 +11,7 @@
           <!-- Items in Cart -->
           <div v-for="(item, itemIndex) in cart.items" :key="itemIndex" class="cart-item">
             <!-- Food Image -->
-            <img src="@/assets/shopping.png" :alt="item.name" class="item-image" />
+            <img :src="item.photo" :alt="item.name" class="item-image" />
   
             <!-- Item Details -->
             <div class="item-details">

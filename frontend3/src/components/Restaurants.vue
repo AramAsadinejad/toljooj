@@ -5,7 +5,7 @@
         <h1>Restaurants</h1>
         <div class="restaurants-grid">
           <div v-for="restaurant in restaurants" :key="restaurant.id" class="restaurant-card">
-            <img src="@/assets/Classic American Cheeseburger and French Fries Art Print Juicy Gourmet Burger Wall Decor for Food Lovers - Etsy.jpg" :alt="restaurant.name" class="restaurant-image" />
+            <img :src="restaurant.photo" :alt="restaurant.name" class="restaurant-image" />
             <div class="restaurant-details">
               <h2>{{ restaurant.name }}</h2>
               <p>{{ restaurant.description }}</p>

@@ -1,30 +1,27 @@
 <template>
-    <header class="user-header">
+    <header class="manager-header">
       <div class="logo">
-        <h1>TOLJOOJ</h1>
+        <h1>Manager Panel</h1>
       </div>
       <nav class="nav-links">
-        <router-link to="/profile" class="nav-link">Profile</router-link>
-        <router-link to="/restaurants" class="nav-link">Restaurants</router-link>
-        <router-link to="/shoppingcart" class="nav-link">Shopping Cart</router-link>
-        <router-link to="/orders" class="nav-link">Orders</router-link>
+        <router-link to="/managerrestaurants" class="nav-link">Restaurants</router-link>
+        <router-link to="/manage-orders" class="nav-link">Orders</router-link>
       </nav>
     </header>
   </template>
   
   <script>
   export default {
-    name: "UserHeaders",
+    name: "ManagerHeader",
   };
   </script>
   
   <style scoped>
-  .user-header {
+  .manager-header {
     display: flex;
     justify-content: space-between;
-    height: 60px;
     align-items: center;
-    padding: 10px;
+    padding: 20px;
     background-color: #6b4423; /* Dark brown */
     color: #ffffff; /* White text */
     border-radius: 10px;
