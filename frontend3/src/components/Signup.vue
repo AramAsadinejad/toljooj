@@ -26,7 +26,7 @@
             <option v-for="option in types" :key="option" :value="option">{{ option }}</option>
           </select>
         </div>
-          <button type="submit" class="submit-button" @click="onSubmit">Create Account</button>
+          <button type="submit" class="submit-button">Create Account</button>
         </form>
         <div v-if="successMessage" class="success-message">
         {{ successMessage }}
@@ -54,8 +54,7 @@
       };
     },
     methods: {
-      async onSubmit() {
-        console.log("hi");
+      onSubmit() {
         if (this.formData.password.length < 6) {
           alert('Password must be at least 6 characters');
           return;
@@ -69,31 +68,48 @@
           return;
         }
         
-        try {
-          const response = await axios.post('http://localhost:3000/user/register', {
+          axios.post('http://localhost:3000/user/register', {
             username: this.formData.username,
             password: this.formData.password,
             type: this.formData.type,
-          });
-          console.log('Sign-up successful:', response.data);
+          })
+          .then((response)=>{
+            console.log('Sign-up successful:', response.data);
+            axios.post('http://localhost:3000/user/login/', {
+              username: this.formData.username,
+              password: this.formData.password,
+            }).then(res=>{console.log(res.data);})
+            .catch(err=>{
+              console.log(err);
+              
+            })
+            // this.successMessage = 'Signup successful! Welcome, ' + this.formData.username + '.';
+            // console.log('Login successful:', loginResponse.data);
+
+
+          })
+          .catch(err=>{
+            if (err.status === 403) {
+              // alert("username already exists");
+              console.log(err);
+              alert("username already exists");
+              
+            }
+          })
+          
   
           // Set success message
-          this.successMessage = 'Signup successful! Welcome, ' + this.formData.username + '.';
   
-          setTimeout(() => {
-            this.successMessage = '';
-          }, 5000);
+          // setTimeout(() => {
+          //   this.successMessage = '';
+          // }, 5000);
   
-          // Log in the user after successful signup
-          const loginResponse = await axios.post('http://localhost:3000/user/login/', {
-            username: this.formData.username,
-            password: this.formData.password,
-          });
-          console.log('Login successful:', loginResponse.data);
-        } catch (error) {
-          console.error('Error during sign-up or login:', error);
-          this.successMessage = ''; // Clear success message if there's an error
-        }
+
+
+
+          // console.error('Error during sign-up or login:', error);
+          // this.successMessage = ''; // Clear success message if there's an error
+        
       }
     },
   };

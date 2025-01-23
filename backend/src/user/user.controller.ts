@@ -8,7 +8,6 @@ export class UserController {
 
     @Post('register')
     async signup(@Body() body: RegisterInterface) {
-      const { username, password } = body;
       return await this.userService.signup(body);
     }
 

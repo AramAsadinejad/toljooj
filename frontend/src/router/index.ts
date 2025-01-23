@@ -13,11 +13,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Register',
     component: () => import('@/components/Register.vue'),
   },
-  {
-    path:'/test',
-    name:'Test',
-    component:() => import('@/components/test.vue')
-  }
+
   // Add other routes here
 ];
 

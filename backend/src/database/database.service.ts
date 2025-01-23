@@ -17,8 +17,10 @@ export class DatabaseService {
     this.client.connect();
   }
 
-  async query(query: string, params: any[] = []): Promise<any> {
+  async query<T>(query: string, params: any[] = []): Promise<T[]> {
     const res = await this.client.query(query, params);
+    // console.log(res.rows);
+    
     return res.rows;
   }
 

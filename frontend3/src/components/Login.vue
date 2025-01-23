@@ -37,12 +37,15 @@
     },
     methods: {
         async handleLogin() {
+          // console.log(this.formData.username);
+          
         try {
           const response = await axios.post("http://localhost:3000/user/login/", {
-            username: this.username,
-            password: this.password,
+            username: this.formData.username,
+            password: this.formData.password,
           });
           console.log("Login successful:", response.data);
+          this.$router.push('/')
           // Handle successful login, e.g., store token, redirect, etc.
         } catch (error) {
           console.error("Login error:", error);
