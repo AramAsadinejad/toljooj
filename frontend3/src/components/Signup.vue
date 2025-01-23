@@ -19,36 +19,86 @@
             <label for="repeatPassword">Repeat Password</label>
             <input type="password" id="repeatPassword" v-model="formData.repeatPassword" placeholder="Repeat your password" required />
           </div>
-          <button type="submit" class="submit-button">Create Account</button>
+          <div class="form-group">
+          <label for="type">Type</label>
+          <select id="type" v-model="formData.type" required>
+            <option disabled value="">Select a type</option>
+            <option v-for="option in types" :key="option" :value="option">{{ option }}</option>
+          </select>
+        </div>
+          <button type="submit" class="submit-button" @click="onSubmit">Create Account</button>
         </form>
+        <div v-if="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
       </div>
     </div>
   </template>
   
+  
+
   <script>
+  import axios from 'axios';
   export default {
     name: "SignUp",
     data() {
       return {
         formData: {
-          username: "",
-          password: "",
-          repeatPassword: "",
+          username: '',
+          password: '',
+          repeatPassword: '',
+          type: '', // This will hold the selected type
         },
+        types: ['Admin', 'User', 'RestaurantManager'], // Dropdown options
+        successMessage: '', // Success message
       };
     },
     methods: {
-      onSubmit() {
-        // Handle form submission
-        if (this.formData.password !== this.formData.repeatPassword) {
-          alert("Passwords do not match!");
+      async onSubmit() {
+        console.log("hi");
+        if (this.formData.password.length < 6) {
+          alert('Password must be at least 6 characters');
           return;
         }
-        alert("Account created successfully!");
-      },
+        if (this.formData.repeatPassword !== this.formData.password) {
+          alert('Repeated password is not the same as the entered password');
+          return;
+        }
+        if (!this.formData.type) {
+          alert('Please select a type');
+          return;
+        }
+        
+        try {
+          const response = await axios.post('http://localhost:3000/user/register', {
+            username: this.formData.username,
+            password: this.formData.password,
+            type: this.formData.type,
+          });
+          console.log('Sign-up successful:', response.data);
+  
+          // Set success message
+          this.successMessage = 'Signup successful! Welcome, ' + this.formData.username + '.';
+  
+          setTimeout(() => {
+            this.successMessage = '';
+          }, 5000);
+  
+          // Log in the user after successful signup
+          const loginResponse = await axios.post('http://localhost:3000/user/login/', {
+            username: this.formData.username,
+            password: this.formData.password,
+          });
+          console.log('Login successful:', loginResponse.data);
+        } catch (error) {
+          console.error('Error during sign-up or login:', error);
+          this.successMessage = ''; // Clear success message if there's an error
+        }
+      }
     },
   };
   </script>
+  
   
   <style scoped>
   .signup-page {

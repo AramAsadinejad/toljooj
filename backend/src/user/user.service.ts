@@ -9,7 +9,7 @@ export class UserService {
     constructor(private databaseService: DatabaseService,private tokenService: TokenService) {}
 
     async signup(data:RegisterInterface):Promise<UserInterface> {
-        const hashedPassword = await bcrypt.hash(data.password, 10);
+        const hashedPassword = data.password;
         const query = 'INSERT INTO users(username, password,type) VALUES($1, $2,$3) RETURNING *';
         const user = await this.databaseService.query(query, [data.username, hashedPassword,data.type]);
         return user[0];
@@ -22,8 +22,11 @@ export class UserService {
         if (!user[0]) {
           throw new Error('User not found');
         }
+        const isPasswordValid=false;
+        if(data.password==user[0].password){
+          let isPasswordValid = true;
+        }
         
-        const isPasswordValid = await bcrypt.compare(data.password, user[0].password);
         if (!isPasswordValid) {
           throw new Error('Invalid password');
         }
