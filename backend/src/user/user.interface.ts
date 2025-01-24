@@ -1,4 +1,4 @@
-enum UserType{
+export enum UserType{
     Admin,
     User,
     RestaurantManager

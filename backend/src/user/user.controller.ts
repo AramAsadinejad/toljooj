@@ -1,6 +1,7 @@
-import { Controller,Post, Body } from '@nestjs/common';
+import { Controller,Post, Body, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { LoginInterface, RegisterInterface } from './user.interface';
+import { TokenAuthGuard } from 'src/token/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -15,6 +16,12 @@ export class UserController {
     async login(@Body() body: LoginInterface) {
       // const { username, password } = body;
       return await this.userService.login(body);
+    }
+
+    @Get("me")
+    @UseGuards(TokenAuthGuard)
+    async getMe(){
+      
     }
 }
   
