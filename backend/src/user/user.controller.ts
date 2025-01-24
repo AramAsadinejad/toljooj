@@ -1,7 +1,8 @@
 import { Controller,Post, Body, Get, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { LoginInterface, RegisterInterface } from './user.interface';
+import { LoginInterface, RegisterInterface, UserInterface } from './user.interface';
 import { TokenAuthGuard } from 'src/token/auth.guard';
+import { GetUser } from './user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -20,8 +21,8 @@ export class UserController {
 
     @Get("me")
     @UseGuards(TokenAuthGuard)
-    async getMe(){
-      
+    async getMe(@GetUser() user:UserInterface){
+        return user;
     }
 }
   
