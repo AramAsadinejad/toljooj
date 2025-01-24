@@ -18,7 +18,8 @@
   </template>
   
   <script>
-  import UserHeaders from "./UserHeader.vue";
+  import axios from "axios";
+import UserHeaders from "./UserHeader.vue";
   
   export default {
     name: "Restaurants",
@@ -34,25 +35,32 @@
             description: "A fine dining experience with a touch of elegance.",
             image: "https://via.placeholder.com/300x200",
           },
-          {
-            id: 2,
-            name: "Mustard Grill",
-            description: "Savor the flavors of our signature mustard-infused dishes.",
-            image: "https://via.placeholder.com/300x200",
-          },
-          {
-            id: 3,
-            name: "Brownstone Bistro",
-            description: "Comfort food in a cozy, rustic setting.",
-            image: "https://via.placeholder.com/300x200",
-          },
+
         ],
       };
+    },
+    mounted(){
+      this.get_restaurants();
     },
     methods: {
       viewMenu(restaurantId) {
         alert(`Viewing menu for restaurant ID: ${restaurantId}`);
       },
+      get_restaurants(){
+        const token = localStorage.getItem("token");
+        axios.get("google.com",{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        })
+        .then(res=>{
+          console.log(res.data);
+          
+        })
+        .catch(err=>{
+          console.log(err)
+        })
+      }
     },
   };
   </script>

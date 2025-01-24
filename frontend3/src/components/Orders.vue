@@ -174,7 +174,8 @@
   }
   
   .red {
-    border: 2px solid #da7400cd; /* Red border for upcoming orders */
+    background-color: #eed2b5;
+    /* border: 2px solid #da7400cd; Red border for upcoming orders */
   }
   
   h3 {

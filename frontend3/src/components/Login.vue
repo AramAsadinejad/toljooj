@@ -45,6 +45,7 @@
             password: this.formData.password,
           });
           console.log("Login successful:", response.data);
+          localStorage.setItem("token",response.data.token);
           this.$router.push('/')
           // Handle successful login, e.g., store token, redirect, etc.
         } catch (error) {
