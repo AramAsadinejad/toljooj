@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 import { GetUser } from 'src/user/user.decorator';
 import { UserInterface } from 'src/user/user.interface';
@@ -32,6 +32,16 @@ export class AddressController {
     async getAdressesByUser(@GetUser() user:UserInterface){
         return this.addressService.getAdressesByUser(user);
 
+    }
+
+    @Patch('set-prime/:id/')
+    @UseGuards(TokenAuthGuard)
+    async setDefaultAddress(
+      @Param('id', ParseIntPipe) addressId: number,
+      @Body('isDefault') isDefault: boolean = true
+    ): Promise<{ message: string }> {
+      await this.addressService.setDefaultAddress(addressId, isDefault);
+      return { message: `Address ${addressId} updated successfully` };
     }
 
 }

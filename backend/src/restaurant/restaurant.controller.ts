@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 
@@ -17,7 +17,9 @@ export class RestaurantController {
 
     @Get("/:id")
     @UseGuards(TokenAuthGuard)
-    async getRestaurantById(id:number){
-        return this.restaurantService.getRestaurantById(id)
+    async getRestaurantById(@Param("id") id:number){
+        return this.restaurantService.getRestaurantWithDetails(id);
     }
+
+
 }
