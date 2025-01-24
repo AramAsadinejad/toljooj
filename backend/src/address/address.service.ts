@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { AddressCreationOrUpdateInterface, AddressInterface } from './address.interface';
 import { UserInterface } from 'src/user/user.interface';
+import { UserController } from './../user/user.controller';
 
 @Injectable()
 export class AddressService {
@@ -16,10 +17,13 @@ export class AddressService {
     }
 
 
-    async getAdressesByUser(user:UserInterface) : Promise<AddressInterface[]>{
+    async getAdressesByUser(user:UserInterface) : Promise<any>{
         const query = "select * from get_user_addresses($1)";
         const addresses = await this.databaseService.query<AddressInterface>(query,[user.id]);
         // console.log(addresses[0].address_id)
-        return addresses;
+        return {
+            addresses,
+            user
+        };
     }
 }
