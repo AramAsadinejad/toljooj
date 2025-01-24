@@ -13,7 +13,7 @@
             type="text"
             id="username"
             v-model="username"
-            placeholder="Enter your username"
+            :placeholder="username"
           />
         </div>
         <button class="save-button" @click="saveUsername">Save Username</button>
@@ -98,8 +98,8 @@ export default {
             Authorization: `Bearer ${this.token}`,
           },
         });
-        console.log(response.data)
-        this.username = response.data.username;
+        console.log(response.data.addresses[0].value)
+        this.username = response.data.user.username;
         this.addresses = response.data.addresses;
       } catch (error) {
         console.error("Error fetching profile data:", error);
@@ -135,10 +135,10 @@ export default {
 
       try {
         const response = await axios.post(
-          "/api/address/create",
+          "http://localhost:3000/address/create",
           {
             value: this.newAddress,
-            is_default: false, // Default value for new addresses
+            isDefault: false, // Default value for new addresses
           },
           {
             headers: {
@@ -161,8 +161,8 @@ export default {
     async setPrimaryAddress(index) {
       try {
         const addressId = this.addresses[index].id;
-        await axios.put(
-          `/api/address/set-primary/${addressId}`,
+        await axios.post(
+          `https://localhost:3000/address/set-primary/${addressId}`,
           {},
           {
             headers: {
