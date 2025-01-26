@@ -46,19 +46,19 @@
   
             <!-- Order Summary -->
             <div class="order-summary">
-              <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
+              <!-- <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p> -->
               <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
             </div>
   
             <!-- Delivery Price Input and Action Buttons -->
             <div class="order-actions">
               <div class="delivery-price-input">
-                <label for="deliveryPrice">Delivery Price:</label>
+                <label for="deliveryPrice">Delivery Fee:</label>
                 <input
                   type="number"
                   id="deliveryPrice"
                   v-model="order.deliveryPrice"
-                  placeholder="Enter delivery price"
+                  placeholder="Enter delivery fee"
                 />
               </div>
               <button @click="approveOrder(index)" class="approve-button">Approve</button>

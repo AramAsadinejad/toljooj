@@ -5,7 +5,7 @@
       </div>
       <nav class="nav-links">
         <router-link to="/managerrestaurants" class="nav-link">Restaurants</router-link>
-        <router-link to="/manage-orders" class="nav-link">Orders</router-link>
+        <router-link to="/managerorders" class="nav-link">Orders</router-link>
       </nav>
     </header>
   </template>

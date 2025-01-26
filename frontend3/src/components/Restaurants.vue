@@ -17,53 +17,48 @@
     </div>
   </template>
   
-  <script>
-  import axios from "axios";
+<script>
 import UserHeaders from "./UserHeader.vue";
-  
-  export default {
-    name: "Restaurants",
-    components: {
-      UserHeaders,
-    },
-    data() {
-      return {
-        restaurants: [
-          {
-            id: 1,
-            name: "The Golden Fork",
-            description: "A fine dining experience with a touch of elegance.",
-            image: "https://via.placeholder.com/300x200",
-          },
+import axios from "axios";
 
-        ],
-      };
-    },
-    mounted(){
-      this.get_restaurants();
-    },
-    methods: {
-      viewMenu(restaurantId) {
-        alert(`Viewing menu for restaurant ID: ${restaurantId}`);
-      },
-      get_restaurants(){
-        const token = localStorage.getItem("token");
-        axios.get("google.com",{
-          headers:{
-            Authorization:`Bearer ${token}`
-          }
-        })
-        .then(res=>{
-          console.log(res.data);
-          
-        })
-        .catch(err=>{
-          console.log(err)
-        })
+export default {
+  name: "Restaurants",
+  components: {
+    UserHeaders,
+  },
+  data() {
+    return {
+      restaurants: [], // List of restaurants
+      token: localStorage.getItem("token"), // Get token from localStorage
+    };
+  },
+  created() {
+    // Check if the user is logged in
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      this.fetchRestaurants(); // Fetch restaurants data
+    }
+  },
+  methods: {
+    // Fetch restaurants from the backend API
+    async fetchRestaurants() {
+      try {
+        const response = await axios.get("http://localhost:3000/restaurants/all/", {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        this.restaurants = response.data; // Set the list of restaurants
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+        alert("Failed to fetch restaurants.");
       }
     },
-  };
-  </script>
+  },
+};
+</script>
   
   <style scoped>
   .restaurants-page {
