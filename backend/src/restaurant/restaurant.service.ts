@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { log } from 'console';
 @Injectable()
 export class RestaurantService {
     constructor(
@@ -16,7 +17,7 @@ export class RestaurantService {
     async getRestaurantWithDetails(restaurantId: number) {
       // console.log(restaurantId);
       
-        const query = 'SELECT * from get_restaurant_with_categories_and_items($1)';
+        const query = 'SELECT * from get_restaurant_details_with_manager($1)';
         const result =await this.databaseService.query<any>(query, [restaurantId]);
         // console.log(result[0]);
         
@@ -32,6 +33,8 @@ export class RestaurantService {
           min_purchase: rawData[0]?.restaurant_min_purchase || null,
           delivery_radius: rawData[0]?.restaurant_delivery_radius || null,
           address:rawData[0]?.restaurant_address || null,
+          managerId: rawData[0]?.manager_id || null,
+          managerUsername: rawData[0]?.manager_username || null,
           categories: [],
         };
     
@@ -96,6 +99,38 @@ export class RestaurantService {
       address,
       imageUrl
     ])
+  }
+
+
+  async upadateRestaurantDetails(body:RestaurantUpdateInterface){
+      const query = `
+      SELECT * from update_restaurant(
+        $1, $2, $3, $4, $5, $6, $7, $8
+      )`
+
+      const {
+        name = null, // Set to null if missing
+        min_purchase = null, // Set to null if missing
+        deliveryRadius = null, // Set to null if missing
+        locationX = null, // Set to null if missing
+        locationY = null, // Set to null if missing
+        address = null, // Set to null if missing
+        imageUrl = null, // Set to null if missing
+        id
+      } = body;
+
+      log(name,min_purchase,deliveryRadius,locationX,locationY,address,imageUrl);
+
+      return this.databaseService.query(query, [
+        id,
+        name,
+        min_purchase,
+        deliveryRadius,
+        locationX,
+        locationY,
+        address,
+        imageUrl
+      ])
   }
 
 
