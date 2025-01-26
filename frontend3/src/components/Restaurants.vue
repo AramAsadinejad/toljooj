@@ -4,12 +4,12 @@
       <div class="restaurants-container">
         <h1>Restaurants</h1>
         <div class="restaurants-grid">
-          <div v-for="restaurant in restaurants" :key="restaurant.id" class="restaurant-card">
-            <img :src="restaurant.photo" :alt="restaurant.name" class="restaurant-image" />
+          <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
+            <img :src="restaurant.restaurant_photo" :alt="restaurant.restaurant_name" class="restaurant-image" />
             <div class="restaurant-details">
-              <h2>{{ restaurant.name }}</h2>
-              <p>{{ restaurant.description }}</p>
-              <button class="order-button" @click="viewMenu(restaurant.id)">View Menu</button>
+              <h2>{{ restaurant.restaurant_name }}</h2>
+              <p>{{ restaurant.restaurant_address }}</p>
+              <button class="order-button" :to="`/restaurants/${restaurant.id}`">View Menu</button>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@ export default {
     // Fetch restaurants from the backend API
     async fetchRestaurants() {
       try {
-        const response = await axios.get("http://localhost:3000/restaurants/all/", {
+        const response = await axios.get("http://localhost:3000/restaurant/all/", {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },

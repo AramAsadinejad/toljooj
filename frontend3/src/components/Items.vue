@@ -1,6 +1,6 @@
 <template>
     <div class="items-page">
-        <UserHeader/>
+        <UserHeaders/>
       <!-- Big Header with Restaurant Photo and Details -->
       <div class="restaurant-header">
         <img src="@/assets/cheese.jpg" alt="Restaurant Photo" class="header-image" />
@@ -48,98 +48,98 @@
   </template>
   
   <script>
-  import UserHeader from './UserHeader.vue';
-  export default {
-  components: { UserHeader },
-    name: "Items",
-    data() {
-      return {
-        minPurchase: 15.0, // Minimum purchase amount
-        activeCategory: "Antipasti", // Default active category
-        categories: ["Antipasti", "Primipiatti", "Contorni", "Dolci", "Bevande"], // Categories
-        items: {
-          Antipasti: [
-            {
-              name: "Bruschetta al Pomodoro",
-              price: 8.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Bruschetta",
+import UserHeaders from "./UserHeader.vue";
+import axios from "axios";
+
+export default {
+  name: "Items",
+  components: {
+    UserHeaders,
+  },
+  data() {
+    return {
+      // id: null, 
+      // restaurant: {
+      //   id: null,
+      //   name: "",
+      //   photo: "",
+      //   min_purchase: 0,
+      //   delivery_radius: 0,
+      //   address: "",
+      //   categories: [], 
+      // },
+      // activeCategory: null, 
+      token: localStorage.getItem("token"), 
+      restaurant:{
+        id: null,
+        name: "",
+        min_purchase: 0,
+        delivery_radius: 0,
+        address: "",
+        categories: []
+      }
+      
+    };
+  },
+  created() {
+    // Check if the user is logged in
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      this.restaurant.id = this.$route.params.restaurant_id;
+      console.log(this.restaurant.id); 
+      this.fetchRestaurantDetails(); 
+    }
+  },
+  methods: {
+    // Fetch restaurant details and items
+    async fetchRestaurantDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/restaurant/${this.restaurant.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
             },
-            {
-              name: "Caprese Salad",
-              price: 9.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Caprese",
-            },
-            {
-              name: "Prosciutto e Melone",
-              price: 10.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Prosciutto",
-            },
-          ],
-          Primipiatti: [
-            {
-              name: "Spaghetti Carbonara",
-              price: 12.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Carbonara",
-            },
-            {
-              name: "Lasagna",
-              price: 14.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Lasagna",
-            },
-          ],
-          Contorni: [
-            {
-              name: "Roasted Vegetables",
-              price: 6.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Vegetables",
-            },
-          ],
-          Dolci: [
-            {
-              name: "Tiramisu",
-              price: 7.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Tiramisu",
-            },
-          ],
-          Bevande: [
-            {
-              name: "Italian Soda",
-              price: 3.99,
-              quantity: 0,
-              image: "https://via.placeholder.com/150x150?text=Soda",
-            },
-          ],
-        },
-      };
-    },
-    methods: {
-      // Increase item quantity
-      increaseQuantity(item) {
-        item.quantity += 1;
-      },
-  
-      // Decrease item quantity
-      decreaseQuantity(item) {
-        if (item.quantity > 1) {
-          item.quantity -= 1;
+          }
+        );
+
+        // Set restaurant details
+        this.restaurant = response.data;
+        console.log(this.restaurant);
+
+        // Set the first category as active by default
+        if (this.restaurant.categories.length > 0) {
+          this.activeCategory = this.restaurant.categories[0];
         }
-      },
-  
-      // Add item to cart
-      addToCart(item) {
-        alert(`Added ${item.name} (${item.quantity}) to cart!`);
-        // You can integrate this with a shopping cart system
-      },
+      } catch (error) {
+        console.error("Error fetching restaurant details:", error);
+        alert("Failed to fetch restaurant details.");
+      }
     },
-  };
-  </script>
+
+    // Increase item quantity
+    increaseQuantity(item) {
+      if (!item.quantity) item.quantity = 1; // Initialize quantity if not set
+      item.quantity += 1;
+    },
+
+    // Decrease item quantity
+    decreaseQuantity(item) {
+      if (item.quantity > 1) {
+        item.quantity -= 1;
+      }
+    },
+
+    // Add item to cart
+    addToCart(item) {
+      alert(`Added ${item.title} (${item.quantity}) to cart!`);
+      // You can integrate this with a shopping cart system
+    },
+  },
+};
+</script>
   
   <style scoped>
   .items-page {
