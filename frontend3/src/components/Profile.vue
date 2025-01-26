@@ -81,7 +81,7 @@ export default {
     };
   },
   created() {
-    // Check if the user is logged in
+    console.log(this.token);
     if (!this.token) {
       alert("You must be logged in to view this page.");
       this.$router.push("/login"); // Redirect to login page
@@ -161,7 +161,7 @@ export default {
     async setPrimaryAddress(index) {
       try {
         const addressId = this.addresses[index].id;
-        await axios.post(
+        await axios.patch(
           `https://localhost:3000/address/set-primary/${addressId}`,
           {},
           {
