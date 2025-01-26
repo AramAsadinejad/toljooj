@@ -27,7 +27,7 @@ export class RestaurantService {
         const response = {
           id: rawData[0]?.restaurant_id || null,
           name: rawData[0]?.restaurant_name || null,
-          photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
+          // photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
           min_purchase: rawData[0]?.restaurant_min_purchase || null,
           delivery_radius: rawData[0]?.restaurant_delivery_radius || null,
           address:rawData[0]?.restaurant_address || null,
