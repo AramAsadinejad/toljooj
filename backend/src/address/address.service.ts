@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { AddressCreationOrUpdateInterface, AddressInterface } from './address.interface';
 import { UserInterface } from 'src/user/user.interface';
@@ -26,4 +26,15 @@ export class AddressService {
             user
         };
     }
+
+    async setDefaultAddress(addressId: number, isDefault: boolean): Promise<void> {
+        try {
+          await this.databaseService.query(
+            'SELECT set_default_address($1, $2)', // Call the stored procedure
+            [addressId, isDefault]
+          );
+        } catch (error) {
+          throw new BadRequestException('Error setting the default address: ' + error.message);
+        }
+      }
 }

@@ -17,10 +17,6 @@ import { RolesGuard, TokenAuthGuard } from './token/auth.guard';
       provide: APP_GUARD,
       useClass: RolesGuard,
     },
-    {
-      provide:APP_GUARD,
-      useClass:TokenAuthGuard
-    }
 
   ],
   controllers: [TestController],
