@@ -24,10 +24,11 @@ export class RestaurantService {
       }
     
       private formatResponse(rawData: any[]) {
+        this.getDefaultImage();
         const response = {
           id: rawData[0]?.restaurant_id || null,
           name: rawData[0]?.restaurant_name || null,
-          // photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
+          photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
           min_purchase: rawData[0]?.restaurant_min_purchase || null,
           delivery_radius: rawData[0]?.restaurant_delivery_radius || null,
           address:rawData[0]?.restaurant_address || null,
@@ -62,9 +63,39 @@ export class RestaurantService {
 
         // Function to get default image as base64
   private getDefaultImage(): string {
-    const defaultImagePath = path.join(__dirname,'..', 'assets', 'defaultRest.jpg');
+    const defaultImagePath = path.join(__dirname,'..', 'assets', 'KrustyKrabStock.png');
     const defaultImage = fs.readFileSync(defaultImagePath);
     return defaultImage.toString('base64');
+  }
+
+  async create(body:RestaurantCreationInterface){
+    const query = `
+    SELECT create_restaurant(
+      $1, $2, $3, $4, $5, $6, $7, $8
+    );
+    `;
+
+    const {
+      name,
+      min_purchase,
+      deliveryRadius,
+      managerId,
+      locationX,
+      locationY,
+      address,
+      imageUrl,
+    } = body;
+
+    await this.databaseService.query(query, [
+      name,
+      min_purchase,
+      deliveryRadius,
+      managerId,
+      locationX,
+      locationY,
+      address,
+      imageUrl
+    ])
   }
 
 
