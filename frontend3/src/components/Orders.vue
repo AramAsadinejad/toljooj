@@ -30,8 +30,8 @@
         <div class="upcoming-orders">
           <h2>Upcoming Orders</h2>
           <div v-for="(order, index) in upcomingOrders" :key="index" class="order-card red">
-            <h3>{{ order.restaurantName }}</h3>
-            <p class="delivery-address">Delivering to: {{ order.deliveryAddress }}</p>
+            <h3 class="upcoming-text">{{ order.restaurantName }}</h3>
+            <p class="delivery-address-upcoming">Delivering to: {{ order.deliveryAddress }}</p>
   
             <!-- Items in Order -->
             <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
@@ -138,8 +138,8 @@
   <style scoped>
   .orders-page {
     /* background-image: "C:/Users/KAVOSH/Desktop/toljooj/frontend3/src/assets/background.jpg"; */
-    background-image: url("@/assets/Untitled (1).jpeg");
-    /* background-color: #f5f5f5;  */
+    /* background-image: url("@/assets/Untitled (1).jpeg"); */
+    background-color: #f5f5f5; 
     min-height: 100vh;
     padding: 20px;
   }
@@ -174,7 +174,7 @@
   }
   
   .red {
-    background-color: #eed2b5;
+    background-color: #024805;
     /* border: 2px solid #da7400cd; Red border for upcoming orders */
   }
   
@@ -182,9 +182,16 @@
     color: #6b4423; /* Dark brown */
     margin-bottom: 10px;
   }
+  .upcoming-text {
+    color: #f9f6f4;
+  }
   
   .delivery-address {
     color: #555; /* Dark gray */
+    margin-bottom: 15px;
+  }
+  .delivery-address-upcoming {
+    color: #a9a9a9; /* Dark gray */
     margin-bottom: 15px;
   }
   
@@ -229,7 +236,7 @@
   .order-status {
     margin-top: 15px;
     padding: 10px;
-    background-color: #da7400cd; /* Light red */
+    background-color: #605e5bcd; /* Light red */
     border-radius: 5px;
     text-align: center;
   }

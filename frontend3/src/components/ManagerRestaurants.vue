@@ -18,6 +18,7 @@
             <p>{{ restaurant.address }}</p>
             <p>Min Purchase: ${{ restaurant.minPurchase.toFixed(2) }}</p>
             <p>Delivery Radius: {{ restaurant.deliveryRadius }} km</p>
+            <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
           </div>
         </div>
       </div>
@@ -39,9 +40,6 @@
               @change="handleImageUpload"
               required
             />
-            <div v-if="newRestaurant.image" class="image-preview">
-              <img :src="newRestaurant.image" alt="Preview" class="preview-image" />
-            </div>
           </div>
           <div class="form-group">
             <label for="address">Address</label>
@@ -49,26 +47,98 @@
           </div>
           <div class="form-group">
             <label for="minPurchase">Minimum Purchase</label>
+            <input type="number" id="minPurchase" v-model="newRestaurant.minPurchase" required />
+          </div>
+          <div class="form-group">
+            <label for="deliveryRadius">Delivery Radius (km)</label>
+            <input type="number" id="deliveryRadius" v-model="newRestaurant.deliveryRadius" required />
+          </div>
+
+          <!-- Opening Hours Section -->
+          <div class="opening-hours-section">
+            <div class="opening-hours-header">
+              <h3>Opening Hours</h3>
+              <button type="button" class="add-button" @click="addOpeningHour">Add Day</button>
+            </div>
+            <div v-for="(day, index) in newRestaurant.openingHours" :key="index" class="opening-hours-item">
+              <select v-model="day.day" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+              <input type="time" v-model="day.open" required />
+              <span>to</span>
+              <input type="time" v-model="day.close" required />
+              <button type="button" class="remove-button" @click="removeOpeningHour(index)">Remove</button>
+            </div>
+            
+          </div>
+
+          <button type="submit" class="submit-button">Submit for Approval</button>
+          <button type="button" class="cancel-button" @click="showAddRestaurantForm = false">Cancel</button>
+        </form>
+      </div>
+
+      <!-- Edit Restaurant Form -->
+      <div v-if="showEditRestaurantForm" class="edit-restaurant-form">
+        <h2>Edit Restaurant</h2>
+        <form @submit.prevent="submitEditForm">
+          <div class="form-group">
+            <label for="edit-name">Restaurant Name</label>
+            <input type="text" id="edit-name" v-model="editRestaurant.name" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-image">Restaurant Image URL</label>
             <input
-              type="number"
-              id="minPurchase"
-              v-model="newRestaurant.minPurchase"
+              type="file"
+              id="image"
+              accept="image/*"
+              @change="handleImageUpload"
               required
             />
           </div>
           <div class="form-group">
-            <label for="deliveryRadius">Delivery Radius (km)</label>
-            <input
-              type="number"
-              id="deliveryRadius"
-              v-model="newRestaurant.deliveryRadius"
-              required
-            />
+            <label for="edit-address">Address</label>
+            <input type="text" id="edit-address" v-model="editRestaurant.address" required />
           </div>
-          <button type="submit" class="submit-button">Submit for Approval</button>
-          <button type="button" class="cancel-button" @click="showAddRestaurantForm = false">
-            Cancel
-          </button>
+          <div class="form-group">
+            <label for="edit-minPurchase">Minimum Purchase</label>
+            <input type="number" id="edit-minPurchase" v-model="editRestaurant.minPurchase" required />
+          </div>
+          <div class="form-group">
+            <label for="edit-deliveryRadius">Delivery Radius (km)</label>
+            <input type="number" id="edit-deliveryRadius" v-model="editRestaurant.deliveryRadius" required />
+          </div>
+
+          <!-- Opening Hours Section -->
+          <div class="opening-hours-section">
+            <div class="opening-hours-header">
+              <h3>Opening Hours</h3>
+              <button type="button" class="add-button" @click="addOpeningHour">Add Day</button>
+            </div>
+            <div v-for="(day, index) in editRestaurant.openingHours" :key="index" class="opening-hours-item">
+              <select v-model="day.day" required>
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+              </select>
+              <input type="time" v-model="day.open" required />
+              <span>to</span>
+              <input type="time" v-model="day.close" required />
+              <button type="button" class="remove-button" @click="removeEditOpeningHour(index)">Remove</button>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-button">Save Changes</button>
+          <button type="button" class="cancel-button" @click="closeEditForm">Cancel</button>
         </form>
       </div>
     </div>
@@ -77,7 +147,7 @@
 
 <script>
 import ManagerHeader from "./ManagerHeader.vue";
-
+import axios from "axios";
 export default {
   name: "ManageRestaurants",
   components: {
@@ -85,13 +155,26 @@ export default {
   },
   data() {
     return {
-      showAddRestaurantForm: false, // Toggle form visibility
+      showAddRestaurantForm: false, // Toggle add form visibility
+      showEditRestaurantForm: false, // Toggle edit form visibility
       newRestaurant: {
         name: "",
-        image: "", // Base64 image string
+        image: "",
+        address: "",
+        min_purchase: 0,
+        locationX: 0,
+        locationY: 0,
+        delivery_radius: 0,
+        openingHours: [], // Array to store opening hours
+      },
+      editRestaurant: {
+        id: null,
+        name: "",
+        image: "",
         address: "",
         minPurchase: 0,
         deliveryRadius: 0,
+        openingHours: [], // Array to store opening hours
       },
       restaurants: [
         {
@@ -101,6 +184,10 @@ export default {
           address: "123 Main St, City, Country",
           minPurchase: 15.0,
           deliveryRadius: 5,
+          openingHours: [
+            { day: "Monday", open: "09:00", close: "18:00" },
+            { day: "Saturday", open: "12:00", close: "20:00" },
+          ],
         },
         {
           id: 2,
@@ -109,38 +196,119 @@ export default {
           address: "456 Elm St, Town, Country",
           minPurchase: 10.0,
           deliveryRadius: 3,
+          openingHours: [
+            { day: "Tuesday", open: "10:00", close: "19:00" },
+            { day: "Friday", open: "11:00", close: "21:00" },
+          ],
         },
       ],
     };
   },
   methods: {
-    // Handle image upload
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.newRestaurant.image = e.target.result; // Set base64 image string
-        };
-        reader.readAsDataURL(file); // Convert image to base64
-      }
+    // Add a new opening hour field to the add form
+    addOpeningHour() {
+      this.newRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
     },
 
-    // Submit the new restaurant form
-    submitRestaurantForm() {
-      // Simulate sending data to the admin for approval
-      alert("Restaurant submitted for approval. Waiting for admin confirmation.");
-      console.log("New Restaurant Data:", this.newRestaurant);
+    // Remove an opening hour field from the add form
+    removeOpeningHour(index) {
+      this.newRestaurant.openingHours.splice(index, 1);
+    },
 
-      // Reset form
-      this.showAddRestaurantForm = false;
-      this.newRestaurant = {
+    // Add a new opening hour field to the edit form
+    addEditOpeningHour() {
+      this.editRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
+    },
+
+    // Remove an opening hour field from the edit form
+    removeEditOpeningHour(index) {
+      this.editRestaurant.openingHours.splice(index, 1);
+    },
+
+    // Open the edit form and pre-fill it with the restaurant's details
+    openEditForm(restaurant) {
+      this.editRestaurant = { ...restaurant, openingHours: [...restaurant.openingHours] }; // Copy restaurant details
+      this.showEditRestaurantForm = true; // Show the edit form
+    },
+
+    // Close the edit form
+    closeEditForm() {
+      this.showEditRestaurantForm = false; // Hide the edit form
+      this.editRestaurant = {
+        id: null,
         name: "",
         image: "",
         address: "",
         minPurchase: 0,
         deliveryRadius: 0,
-      };
+        openingHours: [],
+      }; // Reset the edit form
+    },
+
+    // Submit the edit form
+    submitEditForm() {
+      // Update the restaurant in the local list
+      const index = this.restaurants.findIndex((r) => r.id === this.editRestaurant.id);
+      if (index !== -1) {
+        this.restaurants[index] = { ...this.editRestaurant };
+      }
+
+      alert("Restaurant updated successfully!");
+      this.closeEditForm(); // Close the edit form
+    },
+
+    // Submit the add restaurant form
+    async submitRestaurantForm() {
+      try {
+        // Create FormData object
+        const formData = new FormData();
+        formData.append("name", this.newRestaurant.name);
+        formData.append("min_purchase", this.newRestaurant.min_purchase);
+        formData.append("deliveryRadius", this.newRestaurant.delivery_radius);
+        formData.append("locationX", this.newRestaurant.locationX);
+        formData.append("locationY", this.newRestaurant.locationY);
+        formData.append("address", this.newRestaurant.address);
+        formData.append("image", this.newRestaurant.image); // Append the image file
+
+        // Send POST request to the backend
+        const response = await axios.post(
+          "http://localhost:3000/restaurant/create/",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // Set the content type for file upload
+            },
+          }
+        );
+        console.log(response);
+        // Handle success
+        alert("Restaurant added successfully!");
+        this.showAddRestaurantForm = false; // Hide the add form
+        this.newRestaurant = {
+          name: "",
+          image: null,
+          address: "",
+          minPurchase: 0,
+          deliveryRadius: 0,
+          locationX: 0,
+          locationY: 0,
+          openingHours: [],
+        }; // Reset the form
+
+        // Optionally, fetch the updated list of restaurants from the backend
+        // this.fetchRestaurants();
+      } catch (error) {
+        console.error("Error adding restaurant:", error);
+        alert("Failed to add restaurant. Please try again.");
+      }
+    },
+    async fetchRestaurants() {
+      try {
+        const response = await axios.get("http://localhost:3000/restaurant/");
+        this.restaurants = response.data;
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+      }
     },
   },
 };
@@ -154,7 +322,7 @@ export default {
 }
 
 .restaurants-container {
-  max-width: 1200px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
@@ -225,7 +393,22 @@ p {
   margin-bottom: 5px;
 }
 
-.add-restaurant-form {
+.edit-button {
+  background-color: #6b4423; /* Dark brown */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+  background-color: #4a2f1a; /* Darker brown */
+}
+
+.add-restaurant-form,
+.edit-restaurant-form {
   background-color: #ffffff; /* White */
   border-radius: 10px;
   padding: 20px;
@@ -258,23 +441,72 @@ input {
   outline: none;
 }
 
-input[type="file"] {
-  padding: 5px;
+input:focus {
+  border-color: #6b4423; /* Dark brown */
 }
 
-.image-preview {
-  margin-top: 10px;
+.opening-hours-section {
+  margin-top: 20px;
 }
 
-.preview-image {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
+.opening-hours-section h3 {
+  color: #6b4423; /* Dark brown */
+  
+}
+
+.opening-hours-header {
+  display: flex; /* Align items horizontally */
+  align-items: center; /* Vertically center items */
+  justify-content: space-between; /* Space between h3 and button */
+  margin-bottom: 15px; /* Add some spacing below the header */
+}
+
+.opening-hours-header h3 {
+  margin: 0; /* Remove default margin for h3 */
+}
+
+.opening-hours-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.opening-hours-item select,
+.opening-hours-item input {
+  flex: 1;
+}
+
+.remove-button {
+  background-color: #ff4d4d; /* Red */
+  color: white;
+  border: none;
+  padding: 5px 10px;
   border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.remove-button:hover {
+  background-color: #cc0000; /* Darker red */
+}
+
+.add-button {
+  background-color: #c49a6c; /* Mustard */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-button:hover {
+  background-color: #6b4423; /* Dark brown */
 }
 
 .submit-button {
-  background-color: #c49a6c; /* Mustard */
+  background-color: #6a8e4b; /* Mustard */
   color: #ffffff; /* White */
   border: none;
   padding: 10px 20px;
@@ -285,11 +517,11 @@ input[type="file"] {
 }
 
 .submit-button:hover {
-  background-color: #6b4423; /* Dark brown */
+  background-color: #024805; /* Dark brown */
 }
 
 .cancel-button {
-  background-color: #ff4d4d; /* Red */
+  background-color: #ab0000; /* Red */
   color: #ffffff; /* White */
   border: none;
   padding: 10px 20px;
@@ -299,6 +531,6 @@ input[type="file"] {
 }
 
 .cancel-button:hover {
-  background-color: #cc0000; /* Darker red */
+  background-color: #500000; /* Darker red */
 }
 </style>

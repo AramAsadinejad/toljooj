@@ -8,7 +8,8 @@ import ShoppingCart from '@/components/ShoppingCart.vue';
 import Orders from '@/components/Orders.vue';
 import Items from '@/components/Items.vue';
 import ManagerRestaurants from '@/components/ManagerRestaurants.vue';
-import Managerorders from '@/components/managerorders.vue';
+import ManagerOrders from '@/components/ManagerOrders.vue';
+import ManagerItems from '@/components/ManagerItems.vue';
 
 const routes = [
   {
@@ -59,7 +60,12 @@ const routes = [
   {
     path:'/managerorders',
     name:'managerorders',
-    component: Managerorders,
+    component: ManagerOrders,
+  },
+  {
+    path:'/manageritems',
+    name:'manageritems',
+    component: ManagerItems,
   }
 ];
 
