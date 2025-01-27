@@ -6,10 +6,11 @@ import { TokenModule } from './token/token.module';
 import { TestController } from './test/test.controller';
 import { AddressModule } from './address/address.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { CartModule } from './cart/cart.module';
 
 
 @Module({
-  imports: [UserModule, DatabaseModule, TokenModule, AddressModule, RestaurantModule],
+  imports: [UserModule, DatabaseModule, TokenModule, AddressModule, RestaurantModule, CartModule],
   providers: [
     DatabaseService,
   ],
