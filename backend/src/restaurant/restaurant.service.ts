@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { log } from 'console';
 @Injectable()
 export class RestaurantService {
     constructor(
@@ -16,7 +17,7 @@ export class RestaurantService {
     async getRestaurantWithDetails(restaurantId: number) {
       // console.log(restaurantId);
       
-        const query = 'SELECT * from get_restaurant_with_categories_and_items($1)';
+        const query = 'SELECT * from get_restaurant_details_with_manager($1)';
         const result =await this.databaseService.query<any>(query, [restaurantId]);
         // console.log(result[0]);
         
@@ -24,13 +25,16 @@ export class RestaurantService {
       }
     
       private formatResponse(rawData: any[]) {
+        this.getDefaultImage();
         const response = {
           id: rawData[0]?.restaurant_id || null,
           name: rawData[0]?.restaurant_name || null,
-          // photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
+          photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
           min_purchase: rawData[0]?.restaurant_min_purchase || null,
           delivery_radius: rawData[0]?.restaurant_delivery_radius || null,
           address:rawData[0]?.restaurant_address || null,
+          managerId: rawData[0]?.manager_id || null,
+          managerUsername: rawData[0]?.manager_username || null,
           categories: [],
         };
     
@@ -62,9 +66,71 @@ export class RestaurantService {
 
         // Function to get default image as base64
   private getDefaultImage(): string {
-    const defaultImagePath = path.join(__dirname,'..', 'assets', 'defaultRest.jpg');
+    const defaultImagePath = path.join(__dirname,'..', 'assets', 'KrustyKrabStock.png');
     const defaultImage = fs.readFileSync(defaultImagePath);
     return defaultImage.toString('base64');
+  }
+
+  async create(body:RestaurantCreationInterface){
+    const query = `
+    SELECT create_restaurant(
+      $1, $2, $3, $4, $5, $6, $7, $8
+    );
+    `;
+
+    const {
+      name,
+      min_purchase,
+      deliveryRadius,
+      managerId,
+      locationX,
+      locationY,
+      address,
+      imageUrl,
+    } = body;
+
+    await this.databaseService.query(query, [
+      name,
+      min_purchase,
+      deliveryRadius,
+      managerId,
+      locationX,
+      locationY,
+      address,
+      imageUrl
+    ])
+  }
+
+
+  async upadateRestaurantDetails(body:RestaurantUpdateInterface){
+      const query = `
+      SELECT * from update_restaurant(
+        $1, $2, $3, $4, $5, $6, $7, $8
+      )`
+
+      const {
+        name = null, // Set to null if missing
+        min_purchase = null, // Set to null if missing
+        deliveryRadius = null, // Set to null if missing
+        locationX = null, // Set to null if missing
+        locationY = null, // Set to null if missing
+        address = null, // Set to null if missing
+        imageUrl = null, // Set to null if missing
+        id
+      } = body;
+
+      log(name,min_purchase,deliveryRadius,locationX,locationY,address,imageUrl);
+
+      return this.databaseService.query(query, [
+        id,
+        name,
+        min_purchase,
+        deliveryRadius,
+        locationX,
+        locationY,
+        address,
+        imageUrl
+      ])
   }
 
 

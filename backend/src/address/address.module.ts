@@ -8,6 +8,7 @@ import { TokenModule } from 'src/token/token.module';
 @Module({
   imports: [DatabaseModule,TokenModule],
   providers: [AddressService],
-  controllers: [AddressController]
+  controllers: [AddressController],
+  exports:[AddressService]
 })
 export class AddressModule {}

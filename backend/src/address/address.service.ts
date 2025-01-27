@@ -37,4 +37,11 @@ export class AddressService {
           throw new BadRequestException('Error setting the default address: ' + error.message);
         }
       }
+
+
+      async getDefaultAddress(user: UserInterface):Promise<any>{
+        const query = 'SELECT * from get_default_address($1)';
+        const result = await this.databaseService.query(query, [user.id]);
+        return result[0];
+      }
 }
