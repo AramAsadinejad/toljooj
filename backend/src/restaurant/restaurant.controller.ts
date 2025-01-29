@@ -43,8 +43,7 @@ export class RestaurantController {
           destination: './uploads/restaurants',
           filename: (req, file, cb) => {
             const uniqueName = `${uuidv4()}-${file.originalname}`;
-            const ext = extname(file.originalname);
-            const fileName = `${uniqueName}${ext}`;
+            const fileName = `${uniqueName}`;
             cb(null, fileName);
           },
         }),
