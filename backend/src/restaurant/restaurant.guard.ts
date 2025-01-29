@@ -7,7 +7,6 @@ import { UserInterface } from 'src/user/user.interface';
 @Injectable()
 export class RestaurantManagerGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
     private restaurantsService: RestaurantService,
   ) {}
 
