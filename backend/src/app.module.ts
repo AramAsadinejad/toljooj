@@ -9,10 +9,11 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 import { CartModule } from './cart/cart.module';
 import { ItemModule } from './item/item.module';
 import { CategoryModule } from './category/category.module';
+import { OrderModule } from './order/order.module';
 
 
 @Module({
-  imports: [UserModule, DatabaseModule, TokenModule, AddressModule, RestaurantModule, CartModule, ItemModule, CategoryModule],
+  imports: [UserModule, DatabaseModule, TokenModule, AddressModule, RestaurantModule, CartModule, ItemModule, CategoryModule, OrderModule],
   providers: [
     DatabaseService,
   ],
