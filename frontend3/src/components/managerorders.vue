@@ -194,7 +194,7 @@
   }
   
   .red {
-    border: 2px solid #ff4d4d; /* Red border for pending orders */
+    border: 3px solid #6a8e4b; /* Red border for pending orders */
   }
   
   h3 {
@@ -274,7 +274,7 @@
   }
   
   .approve-button {
-    background-color: #4caf50; /* Green */
+    background-color: #6a8e4b; /* Green */
     color: white;
     border: none;
     padding: 10px 20px;
@@ -285,7 +285,7 @@
   }
   
   .approve-button:hover {
-    background-color: #45a049; /* Darker green */
+    background-color: #024805; /* Darker green */
   }
   
   .reject-button {

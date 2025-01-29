@@ -5,33 +5,33 @@
       <div class="restaurant-header">
         <img src="@/assets/cheese.jpg" alt="Restaurant Photo" class="header-image" />
         <div class="header-overlay">
-          <h1>Traitoria Fiorentina</h1>
-          <p>123 Walnut St., Schlewhere, TX 23456</p>
-          <p class="min-purchase">Minimum Purchase: ${{ minPurchase.toFixed(2) }}</p>
+          <h1>{{ restaurant.name }}</h1>
+          <p>{{ restaurant.address }}</p>
+          <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase.toFixed(2) }}</p>
         </div>
       </div>
   
       <!-- Navbar for Categories -->
       <nav class="category-navbar">
         <button
-          v-for="category in categories"
+          v-for="category in restaurant.categories"
           :key="category"
           @click="activeCategory = category"
           :class="{ active: activeCategory === category }"
         >
-          {{ category }}
+          {{ category.name }}
         </button>
       </nav>
   
       <!-- Items by Category -->
       <div class="items-container">
-        <div v-for="category in categories" :key="category" v-show="activeCategory === category">
-          <h2>{{ category }}</h2>
+        <div v-for="category in restaurant.categories" :key="category" v-show="activeCategory === category">
+          <h2>{{ category.name }}</h2>
           <div class="items-grid">
-            <div v-for="item in items[category]" :key="item.name" class="item-card">
-              <img :src="item.image" :alt="item.name" class="item-image" />
+            <div v-for="item in category['items']" :key="item.title" class="item-card">
+              <img :src="item.photo" :alt="item.title" class="item-image" />
               <div class="item-details">
-                <h3>{{ item.name }}</h3>
+                <h3>{{ item.title }}</h3>
                 <p class="item-price">${{ item.price.toFixed(2) }}</p>
                 <div class="quantity-controls">
                   <button @click="decreaseQuantity(item)" class="quantity-button">-</button>
@@ -76,7 +76,20 @@ export default {
         min_purchase: 0,
         delivery_radius: 0,
         address: "",
-        categories: []
+        categories: [
+        {
+            id: null,
+            name: "",
+            items: [
+                {
+                    title: "",
+                    price: 0,
+                    photo: null,
+                    quantity:0
+                }
+            ]
+        },
+        ]
       }
       
     };
@@ -107,7 +120,8 @@ export default {
 
         // Set restaurant details
         this.restaurant = response.data;
-        console.log(this.restaurant);
+        this.addquantitytoitems(this.restaurant.categories);
+        // console.log(this.restaurant.categories[0].items[0].quantity);
 
         // Set the first category as active by default
         if (this.restaurant.categories.length > 0) {
@@ -119,6 +133,19 @@ export default {
       }
     },
 
+    addquantitytoitems(categories){
+      console.log("hi");
+      const var1 =1;
+      for (let category of categories){
+        console.log("hi2");
+        for (let item of category.items){
+          console.log("hi3");
+          console.log(item);
+          item["quantity"]=var1;
+          
+        }
+      }
+    },
     // Increase item quantity
     increaseQuantity(item) {
       if (!item.quantity) item.quantity = 1; // Initialize quantity if not set
@@ -196,7 +223,7 @@ export default {
   }
   
   .category-navbar button {
-    background-color: #c49a6c; /* Mustard */
+    background-color: #6a8e4b; /* Mustard */
     color: #ffffff; /* White */
     border: none;
     padding: 10px 20px;
@@ -206,15 +233,15 @@ export default {
   }
   
   .category-navbar button.active {
-    background-color: #6b4423; /* Dark brown */
+    background-color: #6a8e4b; /* Dark brown */
   }
   
   .category-navbar button:hover {
-    background-color: #6b4423; /* Dark brown */
+    background-color: #024805; /* Dark brown */
   }
   
   .items-container {
-    max-width: 1200px;
+    max-width: 500px;
     margin: 0 auto;
   }
   
@@ -297,6 +324,6 @@ export default {
   }
   
   .add-to-cart-button:hover {
-    background-color: #4a2f1a; /* Darker brown */
+    background-color: #ff8400; /* Darker brown */
   }
   </style>

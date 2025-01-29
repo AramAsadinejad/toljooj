@@ -25,7 +25,7 @@
     height: 60px;
     align-items: center;
     padding: 10px;
-    background-color: #6b4423; /* Dark brown */
+    background-color: #593803; /* Dark brown */
     color: #ffffff; /* White text */
     border-radius: 10px;
   }
@@ -33,7 +33,7 @@
   .logo h1 {
     margin: 0;
     font-size: 24px;
-    color: #c49a6c; /* Mustard */
+    color: #ffe4c7; /* Mustard */
   }
   
   .nav-links {
