@@ -12,9 +12,54 @@ export class OrderService {
 
     async getOrders(user:UserInterface) {
         const query = "select * from get_orders_by_user($1)";
-        return this.databaseService.query(query,[user.id]);
+        const rawData = await this.databaseService.query(query,[user.id]);
+        return this.formatOrdersByUser(rawData);    
     }
 
+
+    private formatOrdersByUser(rows: any[]) {
+        const cartsMap = new Map<number, any>();
+    
+        for (const row of rows) {
+            const cartId = row.cart_id;
+    
+            // If the cart is not already in the map, create the cart object
+            if (!cartsMap.has(cartId)) {
+                cartsMap.set(cartId, {
+                    cartId: row.cart_id,
+                    deliveryFee: row.delivery_fee,
+                    ispurchased: row.ispurchased,
+                    status: row.status,
+                    isActive: row.cart_isactive,
+                    addressId: row.address_id,
+                    restaurant: {
+                        id: row.restaurant_id,
+                        name: row.restaurant_name,
+                        imageUrl: row.restaurant_image_url,
+                        managerId: row.restaurant_manager_id,
+                    },
+                    items: [],
+                });
+            }
+    
+            // Get the cart object from the map
+            const cart = cartsMap.get(cartId);
+    
+            // Add the item to the cart
+            cart.items.push({
+                itemId: row.item_id,
+                itemTitle: row.item_title,
+                itemPrice: row.item_price,
+                itemPhotoUrl: row.item_photo_url,
+                categoryId: row.category_id,
+                categoryName: row.category_name,
+            });
+        }
+    
+        // Convert the map to an array of carts
+        return Array.from(cartsMap.values());
+    }
+    
     async createOrder(cartId:number,deliveryFee:number,isPurchased:boolean) {
         const query = "select * from create_order($1,$2,$3)";
         return this.databaseService.query(query,[cartId,deliveryFee,isPurchased]);
@@ -22,40 +67,54 @@ export class OrderService {
 
     async getManagerPendingOrders(managerId:number){
         const rawData = await this.databaseService.query<any>(
-            'SELECT * FROM get_pending_orders_with_items_by_manager($1)', 
+            'SELECT * FROM get_orders_by_manager($1)', 
             [managerId]
           );
+          log(rawData);
+        return this.formatOrdersByRestaurant(rawData);
 
-            // Format the raw data into structured orders
-    const ordersMap = new Map<number, OrderWithItemsDto>();
-
-    rawData.forEach(row => {
-      if (!ordersMap.has(row.order_id)) {
-        ordersMap.set(row.order_id, {
-          orderId: row.order_id,
-          cartId: row.cart_id,
-          deliveryFee: row.delivery_fee,
-          isPurchased: row.is_purchased,
-          status: row.status,
-          items: [],
-        });
-      }
-
-      // Push item with its category to the respective order
-      ordersMap.get(row.order_id).items.push({
-        itemId: row.item_id,
-        title: row.item_title,
-        price: row.item_price,
-        photoUrl: row.item_photo_url,
-        category: {
-          categoryId: row.category_id,
-          name: row.category_name,
-        },
-      });
-    });
-
-        return Array.from(ordersMap.values());
     }
+    private formatOrdersByRestaurant(rows: any[]) {
+        const cartsMap = new Map<number, any>();
+    
+        for (const row of rows) {
+            const cartId = row.cart_id;
+    
+            // If the cart is not already in the map, create the cart object
+            if (!cartsMap.has(cartId)) {
+                cartsMap.set(cartId, {
+                    cartId: row.cart_id,
+                    deliveryFee: row.delivery_fee,
+                    ispurchased: row.ispurchased,
+                    status: row.status,
+                    restaurant: {
+                        id: row.restaurant_id,
+                        name: row.restaurant_name,
+                        imageUrl: row.restaurant_image_url,
+                        managerId: row.restaurant_manager_id,
+                    },
+                    items: [],
+                });
+            }
+    
+            // Get the cart object from the map
+            const cart = cartsMap.get(cartId);
+    
+            // Add the item to the cart
+            cart.items.push({
+                itemId: row.item_id,
+                itemTitle: row.item_title,
+                itemPrice: row.item_price,
+                itemPhotoUrl: row.item_photo_url,
+                categoryId: row.category_id,
+                categoryName: row.category_name,
+            });
+        }
+    
+        // Convert the map to an array of carts
+        return Array.from(cartsMap.values());
+    }
+    
     
 
     async deletePendingOrder(orderId:number) {
