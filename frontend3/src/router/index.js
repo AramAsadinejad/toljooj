@@ -64,7 +64,7 @@ const routes = [
     component: ManagerOrders,
   },
   {
-    path:'/manageritems',
+    path:'/manageritems/:restaurant_id',
     name:'manageritems',
     component: ManagerItems,
   },

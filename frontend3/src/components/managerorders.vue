@@ -72,6 +72,7 @@
   
   <script>
   import ManagerHeader from "@/components/ManagerHeader.vue";
+import axios from "axios";
   
   export default {
     name: "ManagerOrders",
@@ -82,51 +83,11 @@
       return {
         // Example data for approved orders
         approvedOrders: [
-          {
-            restaurantName: "The Golden Fork",
-            deliveryAddress: "123 Main St, City, Country",
-            items: [
-              {
-                name: "Grilled Salmon",
-                quantity: 2,
-                price: 15.99,
-                image: "https://via.placeholder.com/100x100?text=Salmon",
-              },
-              {
-                name: "Caesar Salad",
-                quantity: 1,
-                price: 8.99,
-                image: "https://via.placeholder.com/100x100?text=Salad",
-              },
-            ],
-            deliveryFee: 5.99,
-            totalCost: 40.97,
-          },
         ],
   
         // Example data for pending orders
         pendingOrders: [
-          {
-            restaurantName: "Mustard Grill",
-            deliveryAddress: "456 Elm St, Town, Country",
-            items: [
-              {
-                name: "Mustard Chicken",
-                quantity: 3,
-                price: 12.99,
-                image: "https://via.placeholder.com/100x100?text=Chicken",
-              },
-              {
-                name: "Garlic Bread",
-                quantity: 2,
-                price: 4.99,
-                image: "https://via.placeholder.com/100x100?text=Bread",
-              },
-            ],
-            deliveryFee: 4.99,
-            totalCost: 53.95,
-            deliveryPrice: 0, // Delivery price input by manager
-          },
+          
         ],
       };
     },
@@ -153,6 +114,33 @@
           alert("Order rejected.");
         }
       },
+      async fetcgManagerOrders(){
+        try {
+          const response = await axios.get(
+            "http:localhost:3000/get/manager/pending",  {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          }
+        })
+      
+          if (response.data && Array.isArray(response.data)) {
+            response.data.forEach((order) => {
+              if (order.status === false) {
+                this.pendingOrders.push(order); // Add to pending orders
+              } else {
+                this.approvedOrders.push(order); // Add to approved orders
+              }
+            });
+          } else {
+            console.error("Invalid response data format");
+          }
+        }catch(error){
+          console.error("Error fetching orders:", error);
+          alert("Failed to fetch orders.");
+        }
+          
+        
+      }
     },
   };
   </script>

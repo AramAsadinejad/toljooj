@@ -60,7 +60,7 @@
   
   <script>
   import UserHeaders from "./UserHeader.vue";
-  
+  import axios from "axios";
   export default {
     name: "Orders",
     components: {
@@ -71,41 +71,8 @@
         // Example data for previous orders
         previousOrders: [
           {
-            restaurantName: "The Golden Fork",
-            deliveryAddress: "123 Main St, City, Country",
-            items: [
-              {
-                name: "Grilled Salmon",
-                quantity: 2,
-                image: "https://via.placeholder.com/100x100?text=Salmon",
-              },
-              {
-                name: "Caesar Salad",
-                quantity: 1,
-                image: "https://via.placeholder.com/100x100?text=Salad",
-              },
-            ],
-            deliveryFee: 5.99,
-            totalCost: 40.97,
-          },
-          {
-            restaurantName: "Mustard Grill",
-            deliveryAddress: "456 Elm St, Town, Country",
-            items: [
-              {
-                name: "Mustard Chicken",
-                quantity: 3,
-                image: "https://via.placeholder.com/100x100?text=Chicken",
-              },
-              {
-                name: "Garlic Bread",
-                quantity: 2,
-                image: "https://via.placeholder.com/100x100?text=Bread",
-              },
-            ],
-            deliveryFee: 4.99,
-            totalCost: 53.95,
-          },
+            totalCost: 0
+          }
         ],
   
         // Example data for upcoming orders
