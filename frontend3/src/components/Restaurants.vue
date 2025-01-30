@@ -5,7 +5,7 @@
         <h1>Restaurants</h1>
         <div class="restaurants-grid">
           <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
-            <img :src="restaurant.restaurant_photo" :alt="restaurant.restaurant_name" class="restaurant-image" />
+            <img :src="getImageUrl(restaurant.restaurant_photo)" :alt="restaurant.restaurant_name" class="restaurant-image" />
             <div class="restaurant-details">
               <h2>{{ restaurant.restaurant_name }}</h2>
               <p>{{ restaurant.restaurant_address }}</p>
@@ -38,10 +38,14 @@ export default {
       alert("You must be logged in to view this page.");
       this.$router.push("/login"); // Redirect to login page
     } else {
+      console.log(this.token);
       this.fetchRestaurants(); // Fetch restaurants data
     }
   },
   methods: {
+    getImageUrl(imageUrl){
+      return "http://localhost:3000" + imageUrl;
+    },
     // Fetch restaurants from the backend API
     async fetchRestaurants() {
       try {
@@ -50,6 +54,7 @@ export default {
             Authorization: `Bearer ${this.token}`,
           },
         });
+        // response.data.restaurant_photo=`http://localhost:3000${response.data.restaurant_photo}`;
         this.restaurants = response.data; // Set the list of restaurants
       } catch (error) {
         console.error("Error fetching restaurants:", error);

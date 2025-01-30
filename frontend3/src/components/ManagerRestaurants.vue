@@ -265,7 +265,9 @@ export default {
       this.closeEditForm(); // Close the edit form
     },
 
-    // Submit the add restaurant form
+    handleImageUpload(event) {
+    this.newRestaurant.image = event.target.files[0]; // Store the selected file
+    },
     async submitRestaurantForm() {
       try {
         // Create FormData object
@@ -285,6 +287,7 @@ export default {
           {
             headers: {
               "Content-Type": "multipart/form-data", // Set the content type for file upload
+              "Authorization":`token ${this.token}`
             },
           }
         );

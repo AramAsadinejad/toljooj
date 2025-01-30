@@ -31,7 +31,7 @@ export class ItemController {
         }),
       )
     async createItem(
-        @UploadedFile() image: multer.File,
+        @UploadedFile() image: Express.Multer.File,
         @Body() itemData: ItemCreationInterface
     ){
         const imageUrl = image ? `/uploads/items/${image.filename}` : DEFAULT_ITEM_IMAGE_URL;

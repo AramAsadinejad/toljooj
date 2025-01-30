@@ -3,7 +3,7 @@
         <UserHeaders/>
       <!-- Big Header with Restaurant Photo and Details -->
       <div class="restaurant-header">
-        <img src="@/assets/cheese.jpg" alt="Restaurant Photo" class="header-image" />
+        <img :src="getImageUrl(restaurant.photo)" alt="Restaurant Photo" class="header-image" />
         <div class="header-overlay">
           <h1>{{ restaurant.name }}</h1>
           <p>{{ restaurant.address }}</p>
@@ -29,7 +29,7 @@
           <h2>{{ category.name }}</h2>
           <div class="items-grid">
             <div v-for="item in category['items']" :key="item.title" class="item-card">
-              <img :src="item.photo" :alt="item.title" class="item-image" />
+              <img :src="getImageUrl(item.photo)" :alt="item.title" class="item-image" />
               <div class="item-details">
                 <h3>{{ item.title }}</h3>
                 <p class="item-price">${{ item.price.toFixed(2) }}</p>
@@ -74,6 +74,7 @@ export default {
         id: null,
         name: "",
         min_purchase: 0,
+        photo:null,
         delivery_radius: 0,
         address: "",
         categories: [
@@ -107,6 +108,9 @@ export default {
   },
   methods: {
     // Fetch restaurant details and items
+    getImageUrl(imageUrl){
+      return "http://localhost:3000" + imageUrl;
+    },
     async fetchRestaurantDetails() {
       try {
         const response = await axios.get(
