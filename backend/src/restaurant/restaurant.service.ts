@@ -19,17 +19,16 @@ export class RestaurantService {
       
         const query = 'SELECT * from get_restaurant_details_with_manager($1)';
         const result =await this.databaseService.query<any>(query, [restaurantId]);
-        // console.log(result[0]);
+        console.log(result[0]);
         
         return this.formatResponse(result);
       }
     
       private formatResponse(rawData: any[]) {
-        this.getDefaultImage();
         const response = {
           id: rawData[0]?.restaurant_id || null,
           name: rawData[0]?.restaurant_name || null,
-          photo: rawData[0]?.restaurant_photo? rawData[0]?.restaurant_photo.toString('base64'):this.getDefaultImage()  || null,
+          photo: rawData[0]?.restaurant_photo,
           min_purchase: rawData[0]?.restaurant_min_purchase || null,
           delivery_radius: rawData[0]?.restaurant_delivery_radius || null,
           address:rawData[0]?.restaurant_address || null,
