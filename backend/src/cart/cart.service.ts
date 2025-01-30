@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { log } from 'console';
 import { AddressService } from 'src/address/address.service';
 import { DatabaseService } from 'src/database/database.service';
 import { UserInterface } from 'src/user/user.interface';
@@ -88,8 +89,9 @@ export class CartService {
 
     async addToCart(user:UserInterface,itemId:number,quantity:number) {
         const address = await this.addressService.getDefaultAddress(user);
-        const cart = await this.getCart(user);
+        // log(address);
+        // const cart = await this.getCart(user);
         const query = "select add_item_to_cart($1,$2,$3)";
-        // return this.dataBaseService.query(query,[cart.cartId,itemId,quantity]);
+        return this.dataBaseService.query(query,[address.address_id,itemId,quantity]);
     }
 }

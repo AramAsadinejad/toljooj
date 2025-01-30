@@ -5,6 +5,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import * as multer from 'multer';
+import { Multer } from 'multer';
+import { File } from 'multer';
 import { DEFAULT_REST_IMAGE_URL } from 'src/constants';
 import { Roles, ROLES_KEY } from 'src/user/user.constancts';
 import { UserInterface, UserType } from 'src/user/user.interface';
@@ -50,7 +52,7 @@ export class RestaurantController {
       }),
     )
     async createRestaurant(
-      @UploadedFile() image: Express.Multer.File,
+      @UploadedFile() image: File,
       @Body() restaurantData: RestaurantCreationInterface,
       @GetUser() user:UserInterface
     ) {
@@ -75,7 +77,7 @@ export class RestaurantController {
     )
     async upadateRestaurantDetails(body:RestaurantUpdateInterface,
       @Param('id') id:number,
-      @UploadedFile() image: Express.Multer.File,
+      @UploadedFile() image: File,
     ){
         if (body.imageUrl)
           return this.restaurantService.upadateRestaurantDetails({...body,id});
