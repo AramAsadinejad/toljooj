@@ -3,6 +3,8 @@ import { DatabaseService } from 'src/database/database.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { log } from 'console';
+import { CreateHistogramOptions } from 'perf_hooks';
+import { CreateOpenRestDto, RestaurantCreationInterface, RestaurantUpdateInterface } from './restaurant.interface';
 @Injectable()
 export class RestaurantService {
     constructor(
@@ -130,6 +132,29 @@ export class RestaurantService {
         address,
         imageUrl
       ])
+  }
+
+  async addOpenRest(createOpenRestDto: CreateOpenRestDto) {
+    const { restId, openHours } = createOpenRestDto;
+
+    // Ensure time is in "HH:MM:SS" format
+    const formattedOpenHours = openHours.map(entry => ({
+      startHour: this.formatTime(entry.startHour),
+      endHour: this.formatTime(entry.endHour),
+      dayOfWeek: entry.dayOfWeek,
+    }));
+
+    const query = `SELECT add_open_rest($1, $2::JSONB)`;
+    return this.databaseService.query(query, [restId, JSON.stringify(formattedOpenHours)]);
+  }
+
+  private formatTime(time: string): string {
+    // Ensure time is in "HH:MM:SS" format
+    if (!time.includes(":")) {
+      // Convert numeric hour (e.g., "9" -> "09:00:00")
+      return `${time.padStart(2, '0')}:00:00`;
+    }
+    return `${time}:00`; // Convert "9:30" to "09:30:00"
   }
 
 

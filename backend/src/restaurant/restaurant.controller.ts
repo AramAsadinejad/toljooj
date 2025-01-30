@@ -15,6 +15,7 @@ import { extname } from 'path';
 import { GetUser } from 'src/user/user.decorator';
 import { RestaurantManagerGuard } from './restaurant.guard';
 import { log } from 'console';
+import { CreateOpenRestDto, RestaurantCreationInterface, RestaurantUpdateInterface } from './restaurant.interface';
 
 @Controller('restaurant')
 @UseGuards(TokenAuthGuard,RolesGuard)
@@ -83,6 +84,11 @@ export class RestaurantController {
           return this.restaurantService.upadateRestaurantDetails({...body,id});
         const imageUrl = image ? `/uploads/restaurants/${image.filename}` : DEFAULT_REST_IMAGE_URL;
         return this.restaurantService.upadateRestaurantDetails({...body,imageUrl,id});
+    }
+
+    @Post('create/open')
+    async createOpenRest(@Body() body:CreateOpenRestDto){
+      return this.restaurantService.addOpenRest(body);
     }
   }
 
