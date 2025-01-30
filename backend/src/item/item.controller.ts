@@ -8,6 +8,7 @@ import * as multer from 'multer';
 import { ItemCreationInterface } from './item.interface';
 import { DEFAULT_ITEM_IMAGE_URL } from 'src/constants';
 import { TokenAuthGuard } from 'src/token/auth.guard';
+import { File } from 'multer';
 
 @Controller('item')
 @UseGuards(TokenAuthGuard)
@@ -31,7 +32,7 @@ export class ItemController {
         }),
       )
     async createItem(
-        @UploadedFile() image: Express.Multer.File,
+        @UploadedFile() image: File,
         @Body() itemData: ItemCreationInterface
     ){
         const imageUrl = image ? `/uploads/items/${image.filename}` : DEFAULT_ITEM_IMAGE_URL;
