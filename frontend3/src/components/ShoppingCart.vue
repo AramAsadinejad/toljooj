@@ -5,11 +5,11 @@
         <h1>Shopping Cart</h1>
   
         <!-- Restaurant Carts -->
-        <div v-for="(cart, index) in restaurantCarts" :key="index" class="restaurant-cart">
-          <h2>{{ cart.restaurantName }}</h2>
+        <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
+          <h2>{{ cart.restaurant.name }}</h2>
   
           <!-- Items in Cart -->
-          <div v-for="(item, itemIndex) in cart.items" :key="itemIndex" class="cart-item">
+          <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
             <!-- Food Image -->
             <img :src="item.photo" :alt="item.name" class="item-image" />
   
@@ -24,7 +24,7 @@
               <button class="quantity-button" @click="reduceQuantity(index, itemIndex)">
                 🗑️
               </button>
-              <span class="quantity">{{ item.quantity }}</span>
+              <!-- <span class="quantity">{{ item.quantity }}</span> -->
             </div>
           </div>
   
@@ -40,7 +40,7 @@
   
   <script>
   import UserHeaders from "./UserHeader.vue";
-  
+  import axios from "axios";
   export default {
     name: "ShoppingCart",
     components: {
@@ -49,45 +49,18 @@
     data() {
       return {
         // Example data for restaurant carts
-        restaurantCarts: [
-          {
-            restaurantName: "The Golden Fork",
-            items: [
-              {
-                name: "Grilled Salmon",
-                price: 15.99,
-                quantity: 2,
-                image: "https://via.placeholder.com/100x100?text=Salmon", // Food image
-              },
-              {
-                name: "Caesar Salad",
-                price: 8.99,
-                quantity: 1,
-                image: "https://via.placeholder.com/100x100?text=Salad", // Food image
-              },
-            ],
-            totalPrice: 40.97, // Calculated dynamically in a real app
-          },
-          {
-            restaurantName: "Mustard Grill",
-            items: [
-              {
-                name: "Mustard Chicken",
-                price: 12.99,
-                quantity: 3,
-                image: "https://via.placeholder.com/100x100?text=Chicken", // Food image
-              },
-              {
-                name: "Garlic Bread",
-                price: 4.99,
-                quantity: 2,
-                image: "https://via.placeholder.com/100x100?text=Bread", // Food image
-              },
-            ],
-            totalPrice: 53.95, // Calculated dynamically in a real app
-          },
-        ],
+        carts:[],
+        token : localStorage.getItem("token")
       };
+    },
+    created() {
+      console.log(this.token);
+      if (!this.token) {
+        alert("You must be logged in to view this page.");
+        this.$router.push("/login"); // Redirect to login page
+      }else{
+        this.fetchCarts();
+      }
     },
     methods: {
       // Reduce the quantity of an item
@@ -118,6 +91,23 @@
           0
         );
       },
+
+      async fetchCarts(){
+        try {
+          const response = await axios.get(
+          "http://localhost:3000/cart/mine/",
+          {
+            headers: {
+              "Authorization":`token ${this.token}`
+            },
+          }
+        );
+        this.carts=response.data;
+        } catch (error) {
+        console.error("Error Fetching carts:", error);
+        alert("Failed to get carts. Please try again.");
+      }
+      }
     },
   };
   </script>
