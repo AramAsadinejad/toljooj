@@ -21,7 +21,7 @@
       <!-- Category Buttons with Edit Icons -->
       <div v-for="category in restaurant.categories" :key="category.id" class="category-button-container">
         <button
-          @click="activeCategory = category"
+          @click="setActiveCategory(category)"
           :class="{ active: activeCategory === category }"
         >
           {{ category.name }}
@@ -33,27 +33,31 @@
     <!-- Add Category Form -->
     <div v-if="showAddCategoryForm" class="add-category-form">
       <h2>Add New Category</h2>
-      <form>
-      <div class="form-group">
-            <label for="categoryname">Name</label>
-            <input v-model="newCategoryName" placeholder="Category Name" />
-          </div>
-      
-      <div class="form-buttons">
-        <button class="submit-button" @click="addCategory">Save</button>
-        <button class="cancel-button" @click="showAddCategoryForm = false">Cancel</button>
-      </div>
-    </form>
+      <form @submit.prevent="addCategory">
+        <div class="form-group">
+          <label for="categoryname">Name</label>
+          <input v-model="newCategoryName" placeholder="Category Name" required />
+        </div>
+        <div class="form-buttons">
+          <button type="submit" class="submit-button">Save</button>
+          <button type="button" class="cancel-button" @click="showAddCategoryForm = false">Cancel</button>
+        </div>
+      </form>
     </div>
 
     <!-- Edit Category Form -->
     <div v-if="showEditCategoryForm" class="edit-category-form">
       <h3>Edit Category</h3>
-      <input v-model="editCategoryName" placeholder="Category Name" />
-      <div class="form-buttons">
-        <button class="submit-button" @click="saveCategoryEdit">Save</button>
-        <button class="cancel-button" @click="showEditCategoryForm = false">Cancel</button>
-      </div>
+      <form @submit.prevent="saveCategoryEdit">
+        <div class="form-group">
+          <label for="edit-categoryname">Name</label>
+          <input v-model="editCategoryName" placeholder="Category Name" required />
+        </div>
+        <div class="form-buttons">
+          <button type="submit" class="submit-button">Save</button>
+          <button type="button" class="cancel-button" @click="showEditCategoryForm = false">Cancel</button>
+        </div>
+      </form>
     </div>
 
     <!-- Items by Category -->
@@ -69,23 +73,30 @@
         <!-- Add Item Form -->
         <div v-if="showAddItemFormForCategory === category.id" class="add-item-form">
           <h3>Add New Item</h3>
-          <div class="form-group">
-            <label for="itemname">Name</label>
-            <input v-model="newItem.title" placeholder="Item Name" />
-          </div>
-          <div class="form-group">
-            <label for="itemprice">Price</label>
-            <input v-model="newItem.price" placeholder="Price" type="number" />
-          </div>
-          <div class="form-group">
-            <label for="itemimage">Image</label>
-            <input v-model="newItem.photo" placeholder="Image URL" />
-          </div>
-          
-          <div class="form-buttons">
-            <button class="submit-button" @click="addItem(category)">Save</button>
-            <button class="cancel-button" @click="cancelAddItemForm">Cancel</button>
-          </div>
+          <form @submit.prevent="addItem(category)">
+            <div class="form-group">
+              <label for="itemname">Name</label>
+              <input v-model="newItem.title" placeholder="Item Name" required />
+            </div>
+            <div class="form-group">
+              <label for="itemprice">Price</label>
+              <input v-model="newItem.price" placeholder="Price" type="number" required />
+            </div>
+            <div class="form-group">
+              <label for="itemimage">Image</label>
+              <input type="file" id="itemimage" @change="handleItemImageUpload" required />
+            </div>
+            <div class="form-group">
+              <label for="itemcategory">Categories</label>
+              <select v-model="newItem.categoryIds" multiple>
+                <option v-for="cat in restaurant.categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+              </select>
+            </div>
+            <div class="form-buttons">
+              <button type="submit" class="submit-button">Save</button>
+              <button type="button" class="cancel-button" @click="cancelAddItemForm">Cancel</button>
+            </div>
+          </form>
         </div>
 
         <!-- Items Grid -->
@@ -103,13 +114,30 @@
         <!-- Edit Item Form -->
         <div v-if="showEditItemFormForItem === itemToEdit?.title" class="edit-item-form">
           <h3>Edit Item</h3>
-          <input v-model="editItem.title" placeholder="Item Name" />
-          <input v-model="editItem.price" placeholder="Price" type="number" />
-          <input v-model="editItem.photo" placeholder="Image URL" />
-          <div class="form-buttons">
-            <button class="submit-button" @click="saveItemEdit">Save</button>
-            <button class="cancel-button" @click="cancelEditItemForm">Cancel</button>
-          </div>
+          <form @submit.prevent="saveItemEdit">
+            <div class="form-group">
+              <label for="edit-itemname">Name</label>
+              <input v-model="editItem.title" placeholder="Item Name" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-itemprice">Price</label>
+              <input v-model="editItem.price" placeholder="Price" type="number" required />
+            </div>
+            <div class="form-group">
+              <label for="edit-itemimage">Image</label>
+              <input type="file" id="edit-itemimage" @change="handleEditItemImageUpload" />
+            </div>
+            <div class="form-group">
+              <label for="edit-itemcategory">Categories</label>
+              <select v-model="editItem.categoryIds" multiple>
+                <option v-for="cat in restaurant.categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+              </select>
+            </div>
+            <div class="form-buttons">
+              <button type="submit" class="submit-button">Save</button>
+              <button type="button" class="cancel-button" @click="cancelEditItemForm">Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -119,6 +147,7 @@
 <script>
 import UserHeaders from "./UserHeader.vue";
 import axios from "axios";
+
 export default {
   name: "ManagerItems",
   components: {
@@ -126,29 +155,29 @@ export default {
   },
   data() {
     return {
-      restaurant:{
+      restaurant: {
         id: null,
         name: "",
         min_purchase: 0,
-        photo:null,
+        photo: null,
         delivery_radius: 0,
         address: "",
         categories: [
-        {
+          {
             id: null,
             name: "",
             items: [
-                {
-                    title: "",
-                    price: 0,
-                    photo: null,
-                    quantity:0
-                }
-            ]
-        },
-        ]
+              {
+                title: "",
+                price: 0,
+                photo: null,
+                quantity: 0,
+              },
+            ],
+          },
+        ],
       },
-      token:localStorage.getItem("token"),
+      token: localStorage.getItem("token"),
       activeCategory: null,
       showAddCategoryForm: false,
       newCategoryName: "",
@@ -159,26 +188,26 @@ export default {
       newItem: {
         title: "",
         price: 0,
-        photo: "",
+        photo: null,
+        categoryIds: [],
       },
       showEditItemFormForItem: null,
       itemToEdit: null,
       editItem: {
         title: "",
         price: 0,
-        photo: "",
+        photo: null,
+        categoryIds: [],
       },
     };
   },
   created() {
-    // Check if the user is logged in
     if (!this.token) {
       alert("You must be logged in to view this page.");
-      this.$router.push("/login"); // Redirect to login page
+      this.$router.push("/login");
     } else {
       this.restaurant.id = this.$route.params.restaurant_id;
-      console.log(this.restaurant.id); 
-      this.fetchRestaurantDetails(); 
+      this.fetchRestaurantDetails();
     }
   },
   methods: {
@@ -192,13 +221,7 @@ export default {
             },
           }
         );
-
-        // Set restaurant details
         this.restaurant = response.data;
-        this.addquantitytoitems(this.restaurant.categories);
-        // console.log(this.restaurant.categories[0].items[0].quantity);
-
-        // Set the first category as active by default
         if (this.restaurant.categories.length > 0) {
           this.activeCategory = this.restaurant.categories[0];
         }
@@ -207,15 +230,29 @@ export default {
         alert("Failed to fetch restaurant details.");
       }
     },
-    addCategory() {
-      if (this.newCategoryName) {
-        this.restaurant.categories.push({
-          id: Date.now(), // Temporary ID
-          name: this.newCategoryName,
-          items: [],
-        });
+    setActiveCategory(category) {
+      this.activeCategory = category;
+    },
+    async addCategory() {
+      try {
+        const response = await axios.post(
+          "http://localhost:3000/category/create/",
+          {
+            name: this.newCategoryName,
+            restaurant_id: this.restaurant.id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          }
+        );
+        this.restaurant.categories.push(response.data);
         this.showAddCategoryForm = false;
         this.newCategoryName = "";
+      } catch (error) {
+        console.error("Error adding category:", error);
+        alert("Failed to add category.");
       }
     },
     openEditCategoryForm(category) {
@@ -231,198 +268,164 @@ export default {
     },
     showAddItemForm(category) {
       this.showAddItemFormForCategory = category.id;
+      this.newItem.categoryIds = [category.id]; // Default to the current category
     },
-    addItem(category) {
-      if (this.newItem.title && this.newItem.price) {
-        category.items.push({ ...this.newItem, quantity: 1 });
+    handleItemImageUpload(event) {
+      this.newItem.photo = event.target.files[0];
+    },
+    handleEditItemImageUpload(event) {
+      this.editItem.photo = event.target.files[0];
+    },
+    async addItem(category) {
+      try {
+        const formData = new FormData();
+        formData.append("title", this.newItem.title);
+        formData.append("price", this.newItem.price);
+        formData.append("image", this.newItem.photo);
+        // formData.append("categoryIds", this.newItem.categoryIds);
+        const categoryIdsArray = Object.values(this.newItem.categoryIds);
+
+        // Append the array as JSON
+        formData.append("categoryIds", categoryIdsArray);
+        console.log(this.editItem.categoryIds);
+        console.log(categoryIdsArray);
+
+        const response = await axios.post(
+          "http://localhost:3000/item/create/",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        category.items.push(response.data);
         this.cancelAddItemForm();
+      } catch (error) {
+        console.error("Error adding item:", error);
+        alert("Failed to add item.");
       }
     },
     cancelAddItemForm() {
       this.showAddItemFormForCategory = null;
-      this.newItem = { title: "", price: 0, photo: "" };
+      this.newItem = { title: "", price: 0, photo: null, categoryIds: [] };
     },
     openEditItemForm(item) {
       this.itemToEdit = item;
-      this.editItem = { ...item };
+      this.editItem = { ...item, categoryIds: null };
       this.showEditItemFormForItem = item.title;
     },
-    saveItemEdit() {
-      if (this.editItem.title && this.editItem.price) {
-        Object.assign(this.itemToEdit, this.editItem);
+    async saveItemEdit() {
+      try {
+        const formData = new FormData();
+        formData.append("title", this.editItem.title);
+        formData.append("price", this.editItem.price);
+        if (this.editItem.photo) {
+          formData.append("photo", this.editItem.photo);
+        }
+        formData.append("category_ids", JSON.stringify(this.editItem.categoryIds));
+
+        const response = await axios.put(
+          `http://localhost:3000/item/${this.itemToEdit.id}/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        Object.assign(this.itemToEdit, response.data);
         this.cancelEditItemForm();
+      } catch (error) {
+        console.error("Error updating item:", error);
+        alert("Failed to update item.");
       }
     },
     cancelEditItemForm() {
       this.showEditItemFormForItem = null;
       this.itemToEdit = null;
-      this.editItem = { title: "", price: 0, photo: "" };
+      this.editItem = { title: "", price: 0, photo: null, categoryIds: [] };
     },
   },
 };
 </script>
 
 <style scoped>
+/* Your existing styles */
+.items-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 20px;
+}
 
-  .items-page {
-    background-color: #f5f5f5; /* Light background */
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  .restaurant-header {
-    position: relative;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .header-image {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-  
-  .header-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
-    padding: 20px;
-    border-radius: 10px;
-    color: white;
-  }
-  
-  h1 {
-    color: white;
-    margin: 0;
-    font-size: 2.5rem;
-  }
-  
-  p {
-    color: white;
-    margin: 5px 0;
-  }
-  
-  .min-purchase {
-    font-weight: bold;
-    color: #c49a6c; /* Mustard */
-  }
-  
-  .category-navbar {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .category-navbar button {
-    background-color: #6a8e4b; /* Mustard */
-    color: #ffffff; /* White */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .category-navbar button.active {
-    background-color: #6a8e4b; /* Dark brown */
-  }
-  
-  .category-navbar button:hover {
-    background-color: #024805; /* Dark brown */
-  }
-  
-  .items-container {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  
-  h2 {
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 15px;
-  }
-  
-  .items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-  }
-  
-  .item-card {
-    background-color: #ffffff; /* White */
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-  }
-  
-  .item-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .item-image {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-  }
-  
-  .item-details {
-    padding: 15px;
-    text-align: center;
-  }
-  
-  h3 {
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 10px;
-  }
-  
-  .item-price {
-    color: #555; /* Dark gray */
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-  }
-  
-  .quantity-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .quantity-button {
-    background-color: #c49a6c; /* Mustard */
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .quantity-button:hover {
-    background-color: #6b4423; /* Dark brown */
-  }
-  
-  .add-to-cart-button {
-    background-color: #6b4423; /* Dark brown */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .add-to-cart-button:hover {
-    background-color: #ff8400; /* Darker brown */
-  }
- 
+.restaurant-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+}
 
+.header-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+h1 {
+  color: white;
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+p {
+  color: white;
+  margin: 5px 0;
+}
+
+.min-purchase {
+  font-weight: bold;
+  color: #c49a6c;
+}
+
+.category-navbar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.category-navbar button {
+  background-color: #6a8e4b;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.category-navbar button.active {
+  background-color: #024805; /* Darker green for active category */
+}
+
+.category-navbar button:hover {
+  background-color: #024805;
+}
 
 .add-category-button {
   background-color: #6a8e4b;
@@ -456,43 +459,100 @@ export default {
   margin-bottom: 20px;
 }
 
+.items-container {
+  max-width: 800px; /* Adjusted to match card width */
+  margin: 0 auto;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.item-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.item-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.item-details {
+  padding: 15px;
+  text-align: center;
+}
+
+h3 {
+  color: #6b4423;
+  margin-bottom: 10px;
+}
+
+.item-price {
+  color: #555;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.add-category-form,
+.edit-category-form,
+.add-item-form,
+.edit-item-form {
+  background-color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px; /* Match card width */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center align form content */
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left; /* Align labels and inputs to the left */
+}
+
 label {
   display: block;
   margin-bottom: 5px;
-  color: #6b4423; /* Dark brown */
+  color: #6b4423;
   font-weight: bold;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 10px;
-  border: 1px solid #c49a6c; /* Mustard */
+  border: 1px solid #c49a6c;
   border-radius: 5px;
   font-size: 14px;
   outline: none;
 }
 
-input:focus {
-  border-color: #6b4423; /* Dark brown */
-}
-.add-category-form,
-.edit-category-form,
-.add-item-form,
-.edit-item-form {
-  background-color: #ffffff; /* White */
-  border-radius: 10px;
-  padding: 20px;
-  margin: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+input:focus,
+select:focus {
+  border-color: #6b4423;
 }
 
-.form-group {
-  margin-bottom: 15px;
+select[multiple] {
+  height: 100px; /* Adjust height for multi-select */
 }
 
 .form-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center buttons */
+  gap: 10px;
   margin-top: 20px;
 }
 
@@ -513,5 +573,4 @@ input:focus {
   border-radius: 5px;
   cursor: pointer;
 }
-
 </style>
