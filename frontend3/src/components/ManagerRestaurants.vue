@@ -254,8 +254,35 @@ export default {
     },
 
     // Submit the edit form
-    submitEditForm() {
-      // Update the restaurant in the local list
+     async submitEditForm() {
+      try {
+        const formData = new FormData();
+        formData.append("name", this.newRestaurant.name);
+        formData.append("min_purchase", this.newRestaurant.min_purchase);
+        formData.append("deliveryRadius", this.newRestaurant.delivery_radius);
+        formData.append("locationX", this.newRestaurant.locationX);
+        formData.append("locationY", this.newRestaurant.locationY);
+        formData.append("address", this.newRestaurant.address);
+        formData.append("image", this.newRestaurant.image); // Append the image file
+
+        // Send POST request to the backend
+        const response = await axios.put(
+          `http://localhost:3000/restaurant/update/${this.editRestaurant.id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data", // Set the content type for file upload
+              "Authorization":`token ${this.token}`
+            },
+          }
+        );
+        console.log(response);
+        // Handle success
+        alert("Restaurant added successfully!");
+      } catch(error){
+        console.error("Error updating restaurant:", error);
+        alert("Failed to update restaurant. Please try again.");
+      }
       const index = this.restaurants.findIndex((r) => r.id === this.editRestaurant.id);
       if (index !== -1) {
         this.restaurants[index] = { ...this.editRestaurant };

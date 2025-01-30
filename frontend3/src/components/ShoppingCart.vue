@@ -11,7 +11,7 @@
           <!-- Items in Cart -->
           <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
             <!-- Food Image -->
-            <img :src="item.photo" :alt="item.name" class="item-image" />
+            <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
   
             <!-- Item Details -->
             <div class="item-details">
@@ -30,7 +30,7 @@
   
           <!-- Total Price and Order Button -->
           <div class="cart-summary">
-            <p class="total-price">Total: ${{ cart.totalPrice.toFixed(2) }}</p>
+            <!-- <p class="total-price">Total: ${{ cart.totalPrice.toFixed(2) }}</p> -->
             <button class="order-button" @click="placeOrder(index)">Order Now</button>
           </div>
         </div>
@@ -63,6 +63,9 @@
       }
     },
     methods: {
+      getImageUrl(imageUrl){
+        return "http://localhost:3000" + imageUrl;
+      },
       // Reduce the quantity of an item
       reduceQuantity(restaurantIndex, itemIndex) {
         const item = this.restaurantCarts[restaurantIndex].items[itemIndex];
@@ -102,6 +105,7 @@
             },
           }
         );
+        console.log(1);
         this.carts=response.data;
         } catch (error) {
         console.error("Error Fetching carts:", error);

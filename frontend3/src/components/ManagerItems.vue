@@ -118,7 +118,7 @@
 
 <script>
 import UserHeaders from "./UserHeader.vue";
-
+import axios from "axios";
 export default {
   name: "ManagerItems",
   components: {
@@ -126,51 +126,29 @@ export default {
   },
   data() {
     return {
-      restaurant: {
-        id: 1,
-        name: "The Golden Fork",
-        min_purchase: 15.0,
-        delivery_radius: 5,
-        address: "123 Main St, City, Country",
+      restaurant:{
+        id: null,
+        name: "",
+        min_purchase: 0,
+        photo:null,
+        delivery_radius: 0,
+        address: "",
         categories: [
-          {
-            id: 1,
-            name: "Appetizers",
+        {
+            id: null,
+            name: "",
             items: [
-              {
-                title: "Garlic Bread",
-                price: 5.99,
-                photo: "https://via.placeholder.com/150?text=Garlic+Bread",
-                quantity: 1,
-              },
-              {
-                title: "Bruschetta",
-                price: 7.99,
-                photo: "https://via.placeholder.com/150?text=Bruschetta",
-                quantity: 1,
-              },
-            ],
-          },
-          {
-            id: 2,
-            name: "Main Courses",
-            items: [
-              {
-                title: "Spaghetti Carbonara",
-                price: 12.99,
-                photo: "https://via.placeholder.com/150?text=Spaghetti+Carbonara",
-                quantity: 1,
-              },
-              {
-                title: "Grilled Salmon",
-                price: 15.99,
-                photo: "https://via.placeholder.com/150?text=Grilled+Salmon",
-                quantity: 1,
-              },
-            ],
-          },
-        ],
+                {
+                    title: "",
+                    price: 0,
+                    photo: null,
+                    quantity:0
+                }
+            ]
+        },
+        ]
       },
+      token:localStorage.getItem("token"),
       activeCategory: null,
       showAddCategoryForm: false,
       newCategoryName: "",
@@ -193,12 +171,42 @@ export default {
     };
   },
   created() {
-    // Set the first category as active by default
-    if (this.restaurant.categories.length > 0) {
-      this.activeCategory = this.restaurant.categories[0];
+    // Check if the user is logged in
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      this.restaurant.id = this.$route.params.restaurant_id;
+      console.log(this.restaurant.id); 
+      this.fetchRestaurantDetails(); 
     }
   },
   methods: {
+    async fetchRestaurantDetails() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/restaurant/${this.restaurant.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          }
+        );
+
+        // Set restaurant details
+        this.restaurant = response.data;
+        this.addquantitytoitems(this.restaurant.categories);
+        // console.log(this.restaurant.categories[0].items[0].quantity);
+
+        // Set the first category as active by default
+        if (this.restaurant.categories.length > 0) {
+          this.activeCategory = this.restaurant.categories[0];
+        }
+      } catch (error) {
+        console.error("Error fetching restaurant details:", error);
+        alert("Failed to fetch restaurant details.");
+      }
+    },
     addCategory() {
       if (this.newCategoryName) {
         this.restaurant.categories.push({
