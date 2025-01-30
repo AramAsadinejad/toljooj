@@ -10,6 +10,7 @@ import Items from '@/components/Items.vue';
 import ManagerRestaurants from '@/components/ManagerRestaurants.vue';
 import ManagerOrders from '@/components/ManagerOrders.vue';
 import ManagerItems from '@/components/ManagerItems.vue';
+import AdminRestaurants from '@/components/AdminRestaurants.vue';
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
     path:'/manageritems',
     name:'manageritems',
     component: ManagerItems,
+  },
+  {
+    path:'/adminrestaurants',
+    name:'adminrestaurants',
+    component: AdminRestaurants,
   }
 ];
 

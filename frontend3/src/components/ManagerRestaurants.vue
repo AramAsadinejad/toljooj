@@ -202,7 +202,15 @@ export default {
           ],
         },
       ],
+      token:localStorage.getItem("token")
     };
+  },
+  created() {
+    console.log(this.token);
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    }
   },
   methods: {
     // Add a new opening hour field to the add form

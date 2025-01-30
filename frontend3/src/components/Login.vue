@@ -46,7 +46,7 @@
           });
           console.log("Login successful:", response.data);
           localStorage.setItem("token",response.data.token);
-          this.$router.push('/')
+          this.$router.push('/restaurants')
           // Handle successful login, e.g., store token, redirect, etc.
         } catch (error) {
           console.error("Login error:", error);

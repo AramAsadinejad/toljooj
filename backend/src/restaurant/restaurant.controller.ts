@@ -51,7 +51,7 @@ export class RestaurantController {
       }),
     )
     async createRestaurant(
-      @UploadedFile() image: multer.File,
+      @UploadedFile() image: Express.Multer.File,
       @Body() restaurantData: RestaurantCreationInterface,
       @GetUser() user:UserInterface
     ) {
@@ -76,7 +76,7 @@ export class RestaurantController {
     )
     async upadateRestaurantDetails(body:RestaurantUpdateInterface,
       @Param('id') id:number,
-      @UploadedFile() image: multer.File
+      @UploadedFile() image: Express.Multer.File,
     ){
         if (body.imageUrl)
           return this.restaurantService.upadateRestaurantDetails({...body,id});
