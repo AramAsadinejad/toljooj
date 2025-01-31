@@ -1,6 +1,6 @@
 <template>
     <div class="admin-users-page">
-      <UserHeaders />
+      <AdminHeader />
       <div class="admin-users-container">
         <!-- Left Side: Users List -->
         <div class="users-list">
@@ -70,13 +70,13 @@
   </template>
   
   <script>
-  import UserHeaders from "./UserHeader.vue";
+  import AdminHeader from "./AdminHeader.vue";
   import axios from "axios";
   
   export default {
     name: "AdminUser",
     components: {
-      UserHeaders,
+      AdminHeader,
     },
     data() {
       return {
