@@ -21,7 +21,7 @@
 
           <!-- Order Summary -->
           <div class="order-summary">
-            <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
+            <p>Delivery Fee: ${{ order.deliveryFee}}</p>
             <p class="total-cost">Total: ${{ order.totalCost }}</p>
           </div>
         </div>
@@ -47,7 +47,7 @@
           <!-- Order Summary -->
           <div class="order-summary">
             <!-- <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p> -->
-            <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
+            <p class="total-cost">Total: ${{ order.totalCost }}</p>
           </div>
 
           <!-- Delivery Price Input and Action Buttons -->
