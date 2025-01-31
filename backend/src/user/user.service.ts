@@ -91,7 +91,7 @@ export class UserService {
           userMap.get(row.user_id).addresses.push({
             addressId: row.address_id,
             isDefault: row.isdefault, // Note: PostgreSQL returns lowercase for columns
-            value: row.value,
+            value: row.address_value,
           });
         }
       }
