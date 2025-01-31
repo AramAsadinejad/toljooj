@@ -12,7 +12,7 @@ export class CartService {
     ){}
 
 
-    async getCart(user:UserInterface) {
+    async getCarts(user:UserInterface) {
         const query = "select * from get_active_cart_details($1)";
         const address = await this.addressService.getDefaultAddress(user);
         const result = await this.dataBaseService.query(query,[address.address_id]);
@@ -60,6 +60,7 @@ export class CartService {
                   title: row.item_title,
                   price: row.item_price,
                   photoUrl: row.item_photo,
+                  quantity: row.quantity,
                   categories: [],
               };
               restaurant.items.push(item);
@@ -93,5 +94,10 @@ export class CartService {
         // const cart = await this.getCart(user);
         const query = "select add_item_to_cart($1,$2,$3)";
         return this.dataBaseService.query(query,[address.address_id,itemId,quantity]);
+    }
+
+    async decreaseQuantity(itemId:number,cartId:number){
+        const query = "select decrease_item_quantity($1,$2)";
+        return this.dataBaseService.query(query,[itemId,cartId]); 
     }
 }

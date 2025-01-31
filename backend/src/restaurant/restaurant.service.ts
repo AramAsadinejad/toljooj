@@ -157,5 +157,10 @@ export class RestaurantService {
     return `${time}:00`; // Convert "9:30" to "09:30:00"
   }
 
+  async getManagerRestaurants(managerId: number) {
+    const query = `SELECT * FROM get_restaurants_by_manager($1)`;
+    return this.databaseService.query(query, [managerId]);
+  }
+
 
 }

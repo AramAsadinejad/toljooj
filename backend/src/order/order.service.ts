@@ -53,6 +53,7 @@ export class OrderService {
                 itemPhotoUrl: row.item_photo_url,
                 categoryId: row.category_id,
                 categoryName: row.category_name,
+                quantity:row.item_quantity
             });
         }
     
@@ -70,7 +71,7 @@ export class OrderService {
             'SELECT * FROM get_orders_by_manager($1)', 
             [managerId]
           );
-          log(rawData);
+        //   log(rawData);
         return this.formatOrdersByRestaurant(rawData);
 
     }
@@ -108,6 +109,7 @@ export class OrderService {
                 itemPhotoUrl: row.item_photo_url,
                 categoryId: row.category_id,
                 categoryName: row.category_name,
+                item_quantity : row.item_quantity
             });
         }
     
