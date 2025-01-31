@@ -27,6 +27,7 @@
             {{ category.name }}
           </button>
           <span class="edit-icon" @click="openEditCategoryForm(category)">✏️</span>
+          <span class="delete-icon" @click="deleteCategory(category.id)">🗑️</span>
         </div>
       </nav>
   
@@ -107,6 +108,7 @@
                 <h3>{{ item.title }}</h3>
                 <p class="item-price">${{ item.price }}</p>
                 <span class="edit-icon" @click="openEditItemForm(item)">✏️</span>
+                <span class="delete-icon" @click.stop="deleteItem(item.id)">🗑️</span>
               </div>
             </div>
           </div>
@@ -168,6 +170,7 @@
               name: "",
               items: [
                 {
+                  id: null,
                   title: "",
                   price: 0,
                   photo: null,
@@ -236,10 +239,27 @@
       setActiveCategory(category) {
         this.activeCategory = category;
       },
+      async deleteCategory(categoryId) {
+        if (confirm("Are you sure you want to delete this category?")) {
+          try {
+            const response=await axios.delete(`http://localhost:3000/category/delete/${categoryId}/`, {
+              headers: {
+                Authorization: `token ${this.token}`,
+              },
+            });
+            console.log(response);
+            alert("category deleted successfully!");
+            this.fetchRestaurantDetails(); // Refresh the users list
+          } catch (error) {
+            console.error("Error deleting category:", error);
+            alert("Failed to delete category. Please try again.");
+          }
+        }
+      },
       async addCategory() {
         try {
           const response = await axios.post(
-            "http://localhost:3000/category/create/",
+            `http://localhost:3000/category/create/${this.restaurant.id}`,
             {
               name: this.newCategoryName,
               restaurant_id: this.restaurant.id,
@@ -278,6 +298,23 @@
       },
       handleEditItemImageUpload(event) {
         this.editItem.photo = event.target.files[0];
+      },
+      async deleteItem(itemId) {
+        if (confirm("Are you sure you want to delete this item?")) {
+          try {
+            const response=await axios.delete(`http://localhost:3000/item/delete/${itemId}/`, {
+              headers: {
+                Authorization: `token ${this.token}`,
+              },
+            });
+            console.log(response);
+            alert("item deleted successfully!");
+            this.fetchRestaurantDetails(); // Refresh the users list
+          } catch (error) {
+            console.error("Error deleting item:", error);
+            alert("Failed to delete item. Please try again.");
+          }
+        }
       },
       async addItem(category) {
         try {
@@ -329,12 +366,12 @@
           formData.append("title", this.editItem.title);
           formData.append("price", this.editItem.price);
           if (this.editItem.photo) {
-            formData.append("photo", this.editItem.photo);
+            formData.append("image", this.editItem.photo);
           }
-          formData.append("category_ids", JSON.stringify(this.editItem.categoryIds));
-  
+          const categoryIdsArray = Object.values(this.newItem.categoryIds);
+          formData.append("categoryIds", categoryIdsArray);
           const response = await axios.put(
-            `http://localhost:3000/item/${this.itemToEdit.id}/`,
+            `http://localhost:3000/item/update/${this.itemToEdit.id}/`,
             formData,
             {
               headers: {
@@ -449,7 +486,8 @@
     gap: 5px;
   }
   
-  .edit-icon {
+  .edit-icon,
+  .delete-icon {
     cursor: pointer;
     font-size: 14px;
     color: #6b4423;

@@ -13,6 +13,7 @@ import ManagerItems from '@/components/ManagerItems.vue';
 import AdminRestaurants from '@/components/AdminRestaurants.vue';
 import AdminUsers from '@/components/AdminUsers.vue';
 import AdminItems from '@/components/AdminItems.vue';
+import AdminOrders from '@/components/AdminOrders.vue';
 
 const routes = [
   {
@@ -84,7 +85,12 @@ const routes = [
     path:'/adminusers',
     name:'adminusers',
     component: AdminUsers,
-  }
+  },
+  {
+    path:'/adminorders',
+    name:'adminorders',
+    component: AdminOrders,
+  },
 ];
 
 const router = createRouter({

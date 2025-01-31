@@ -38,6 +38,7 @@ export class UserController {
     @Roles(UserType.Admin)
     @UseGuards(TokenAuthGuard,RolesGuard)
     async deleteUser(@Param('id') id:number){
+      console.log(id);
       return this.userService.deleteUser(id);
     }
 

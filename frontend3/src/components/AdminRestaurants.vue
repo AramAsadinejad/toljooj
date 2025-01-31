@@ -1,8 +1,8 @@
 <template>
   <div class="manage-restaurants-page">
-    <ManagerHeader />
+    <AdminHeader />
     <div class="restaurants-container">
-      <h1>Manage Restaurants</h1>
+      <h1>Admin Restaurants</h1>
 
       <!-- Add New Restaurant Card -->
       <div class="add-restaurant-card" @click="showAddRestaurantForm = true">
@@ -151,17 +151,19 @@
 </template>
 
 <script>
-import ManagerHeader from "./ManagerHeader.vue";
+import AdminHeader from "./AdminHeader.vue";
 import axios from "axios";
 export default {
   name: "ManageRestaurants",
   components: {
-    ManagerHeader,
+    AdminHeader,
   },
   data() {
     return {
       showAddRestaurantForm: false, // Toggle add form visibility
       showEditRestaurantForm: false, // Toggle edit form visibility
+      page: 1,
+      limit: 5,
       newRestaurant: {
         name: "",
         image: "",
@@ -238,7 +240,7 @@ export default {
     async getRestaurants(){
       try {
         const response=await axios.get(
-          "http://localhost:3000/restaurant/all/", {
+          `http://localhost:3000/restaurant/all?page=${this.page}&${this.limit}`, {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
