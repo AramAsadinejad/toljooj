@@ -40,4 +40,11 @@ export class OrderController {
         return this.orderService.setOrderStatus(orderId,deliveryFee);
     }
 
+    @Get('all')
+    @Roles(UserType.Admin)
+    @UseGuards(RolesGuard)
+    async getAllOrders(){
+        return this.orderService.getAllOrders();
+    }
+
 }

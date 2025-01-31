@@ -168,4 +168,10 @@ export class OrderService {
         const query = "select * from set_delivery_fee_and_mark_status($1,$2)";
         return this.databaseService.query(query,[orderId,deliveryFee]);
     }
+
+    async getAllOrders(){
+        const query = "select * from get_all_orders()";
+        const result = await this.databaseService.query<any>(query,[]);
+        return this.formatOrdersByRestaurant(result);
+    }
 }
