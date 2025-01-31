@@ -51,7 +51,7 @@ export class RestaurantService {
     
           if (row.item_id) {
             categoryMap.get(row.category_id).items.push({
-              id: row.dish_id,
+              id: row.item_id,
               title: row.item_title,
               price: row.item_price,
               photo: row.item_photo,
