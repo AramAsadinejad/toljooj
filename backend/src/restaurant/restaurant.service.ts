@@ -80,17 +80,17 @@ export class RestaurantService {
     `;
 
     const {
-      name,
-      min_purchase,
-      deliveryRadius,
-      managerId,
-      locationX,
-      locationY,
-      address,
-      imageUrl,
+      name = null,
+      min_purchase = null,
+      deliveryRadius = null,
+      managerId = null,
+      locationX = null,
+      locationY = null ,
+      address = null,
+      imageUrl = null,
     } = body;
 
-    await this.databaseService.query(query, [
+    return this.databaseService.query(query, [
       name,
       min_purchase,
       deliveryRadius,

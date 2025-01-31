@@ -17,5 +17,16 @@ export class CategoryService {
     async createCategory(name:string,restaurantId:number){
         const query = "select * from create_category($1,$2)";
         return this.databaseService.query(query,[name,restaurantId]);
+    
+    }
+
+    async updateCategory(id:number,name:string){
+        const query = "select * from update_category($1,$2)";
+        return this.databaseService.query(query,[id,name]);
+    }
+
+    async deleteCategory(id:number){
+        const query = "select * from delete_category($1)";
+        return this.databaseService.query(query,[id]);
     }
 }
