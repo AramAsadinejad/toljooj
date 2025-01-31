@@ -284,11 +284,13 @@ export default {
         formData.append("image", this.newItem.photo);
         // formData.append("categoryIds", this.newItem.categoryIds);
         const categoryIdsArray = Object.values(this.newItem.categoryIds);
-
+        
         // Append the array as JSON
         formData.append("categoryIds", categoryIdsArray);
-        console.log(this.editItem.categoryIds);
-        console.log(categoryIdsArray);
+        console.log(typeof formData.get("categoryIds"));
+        console.log(this.newItem.categoryIds);
+        console.log(typeof categoryIdsArray);
+        console.log(Array.isArray(categoryIdsArray));
 
         const response = await axios.post(
           "http://localhost:3000/item/create/",

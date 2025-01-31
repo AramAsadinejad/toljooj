@@ -11,13 +11,13 @@
 
       <!-- Restaurants List -->
       <div class="restaurants-grid">
-        <div v-for="restaurant in restaurants" :key="restaurant.id" class="restaurant-card">
+        <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
           <img :src="restaurant.image" :alt="restaurant.name" class="restaurant-image" />
           <div class="restaurant-details">
-            <h2>{{ restaurant.name }}</h2>
+            <h2>{{ restaurant.restaurant_name }}</h2>
             <p>{{ restaurant.address }}</p>
-            <p>Min Purchase: ${{ restaurant.minPurchase.toFixed(2) }}</p>
-            <p>Delivery Radius: {{ restaurant.deliveryRadius }} km</p>
+            <p>Min Purchase: ${{ restaurant.min_purchase }}</p>
+            <p>Delivery Radius: {{ restaurant.delivery_radius }} km</p>
             <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
             <button class="order-button" :to="`/restaurants/${restaurant.restaurant_id}`">View Menu</button>
           </div>
@@ -188,8 +188,7 @@ export default {
       alert("You must be logged in to view this page.");
       this.$router.push("/login"); // Redirect to login page
     }else {
-      this.restaurant.id = this.$route.params.restaurant_id;
-      this.fetchRestaurants();
+      this.getRestaurants();
     }
   },
   methods: {
@@ -235,13 +234,14 @@ export default {
     async getRestaurants(){
       try {
         const response=axios.get(
-          "http://localhost:3000/restaurant/mine/", {
+          "http://localhost:3000/restaurant/manager/all/", {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
         });
         
-        this.restaurants = response.data; 
+        this.restaurants = response.data;
+        console.log(this.restaurants); 
       } catch (error) {
         console.error("Error fetching restaurants:", error);
         alert("Failed to fetch restaurants.");
@@ -334,14 +334,7 @@ export default {
         alert("Failed to add restaurant. Please try again.");
       }
     },
-    async fetchRestaurants() {
-      try {
-        const response = await axios.get("http://localhost:3000/restaurant/");
-        this.restaurants = response.data;
-      } catch (error) {
-        console.error("Error fetching restaurants:", error);
-      }
-    },
+
   },
 };
 </script>

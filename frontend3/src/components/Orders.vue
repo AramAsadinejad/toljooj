@@ -1,121 +1,137 @@
 <template>
-    <div class="orders-page">
-      <UserHeaders />
-      <div class="orders-container">
-        <!-- Previous Orders -->
-        <div class="previous-orders">
-          <h2>Previous Orders</h2>
-          <div v-for="(order, index) in previousOrders" :key="index" class="order-card faded">
-            <h3>{{ order.restaurant.name }}</h3>
-            <p class="delivery-address">Delivered to: {{ order.addressId }}</p>
-  
-            <!-- Items in Order -->
-            <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item faded">
-              <img :src="getImageUrl(item.itemPhotoUrl)" :alt="item.name" class="item-image faded" />
-              <div class="item-details faded">
-                <p class="item-name faded">{{ item.itemTitle }}</p>
-                <p class="item-quantity faded">Quantity: {{ item.quantity }}</p>
-              </div>
+  <div class="orders-page">
+    <UserHeaders />
+    <div class="orders-container">
+      <!-- Previous Orders -->
+      <div class="previous-orders">
+        <h2>Previous Orders</h2>
+        <div v-for="(order, index) in previousOrders" :key="index" class="order-card faded">
+          <h3>{{ order.restaurant.name }}</h3>
+          <p class="delivery-address">Delivered to: {{ order.address.addressValue }}</p>
+
+          <!-- Items in Order -->
+          <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item faded">
+            <img :src="getImageUrl(item.itemPhotoUrl)" :alt="item.name" class="item-image faded" />
+            <div class="item-details faded">
+              <p class="item-name faded">{{ item.title }}</p>
+              <p class="item-name faded">${{ item.price }}</p>
+              <p class="item-quantity faded">Quantity: {{ item.quantity }}</p>
             </div>
-  
-            <!-- Order Summary -->
-            <!-- <div class="order-summary faded">
-              <p class="faded">Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
-              <p class="total-cost faded">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div> -->
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary faded">
+            <p class="faded">Delivery Fee: ${{ order.deliveryFee || 0 }}</p>
+            <p class="total-cost faded">Total: ${{ order.totalCost }}</p>
           </div>
         </div>
-  
-        <!-- Upcoming Orders -->
-        <div class="upcoming-orders">
-          <h2>Upcoming Orders</h2>
-          <div v-for="(order, index) in upcomingOrders" :key="index" class="order-card red">
-            <h3 class="upcoming-text">{{ order.restaurant.name }}</h3>
-            <p class="delivery-address-upcoming">Delivering to: {{ order.addressId }}</p>
-  
-            <!-- Items in Order -->
-            <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
-              <img :src="getImageUrl(item.itemPhotoUrl)" :alt="item.name" class="item-image" />
-              <div class="item-details ">
-                <p class="item-name ">{{ item.itemTitle }}</p>
-                <p class="item-quantity ">Quantity: {{ item.quantity }}</p>
-              </div>
+      </div>
+
+      <!-- Upcoming Orders -->
+      <div class="upcoming-orders">
+        <h2>Upcoming Orders</h2>
+        <div v-for="(order, index) in upcomingOrders" :key="index" class="order-card red">
+          <h3 class="upcoming-text">{{ order.restaurant.name }}</h3>
+          <p class="delivery-address-upcoming">Delivering to: {{ order.address.addressValue }}</p>
+
+          <!-- Items in Order -->
+          <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
+            <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
+            <div class="item-details">
+              <p class="item-name">{{ item.title }}</p>
+              <p class="item-name">${{ item.price }}</p>
+              <p class="item-quantity">Quantity: {{ item.quantity }}</p>
             </div>
-  
-            <!-- Order Summary -->
-            <!-- <div class="order-summary">
-              <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
-              <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div> -->
-  
-            <!-- Order Status -->
-            <div class="order-status">
-              <p>ON THE WAY</p>
-            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary">
+            <p>Delivery Fee: not determined yet</p>
+            <p class="total-cost">Total: ${{ order.totalCost }}</p>
+          </div>
+
+          <!-- Order Status -->
+          <div class="order-status">
+            <p>ON THE WAY</p>
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import UserHeaders from "./UserHeader.vue";
-  import axios from "axios";
-  export default {
-    name: "Orders",
-    components: {
-      UserHeaders,
-    },
-    data() {
-      return {
-        // Example data for previous orders
-        previousOrders: [
-        ],
-        token: localStorage.getItem("token"),
-        // Example data for upcoming orders
-        upcomingOrders: [
-        ],
-      };
-    },
-    created(){
-      if (!this.token) {
+  </div>
+</template>
+
+<script>
+import UserHeaders from "./UserHeader.vue";
+import axios from "axios";
+
+export default {
+  name: "Orders",
+  components: {
+    UserHeaders,
+  },
+  data() {
+    return {
+      previousOrders: [],
+      token: localStorage.getItem("token"),
+      upcomingOrders: [],
+    };
+  },
+  created() {
+    if (!this.token) {
       alert("You must be logged in to view this page.");
       this.$router.push("/login"); // Redirect to login page
     } else {
       console.log(this.token);
-      this.fetchOrders(); // Fetch restaurants data
+      this.fetchOrders(); // Fetch orders data
     }
+  },
+  methods: {
+    getImageUrl(imageUrl) {
+      return "http://localhost:3000" + imageUrl;
     },
-    methods:{
-      getImageUrl(imageUrl){
-        return "http://localhost:3000" + imageUrl;
-      },
-      async fetchOrders(){
-          try {
-          const response = await axios.get("http://localhost:3000/order/mine/", {
-            headers: {
-              Authorization: `Bearer ${this.token}`,
-            },
-          });
-          const orders=response.data;
-          orders.forEach((order)=>{
-            if (order.status===false){
-              this.previousOrders.push(order);
-            }else{
-              this.upcomingOrders.push(order);
-            }
-          })
-          console.log(this.previousOrders);
-          console.log(this.upcomingOrders);
+    async fetchOrders() {
+      try {
+        const response = await axios.get("http://localhost:3000/order/mine/", {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        const orders = response.data;
+        orders.forEach((order) => {
+          // Calculate total cost for each order
           
-        } catch (error) {
-          console.error("Error fetching orders:", error);
-          alert("Failed to fetch orders.");
-        }
+          if (order.status === false) {
+            this.previousOrders.push(order);
+            order.totalCost = this.calculateTotalCost(order,order.deliveryFee);
+          } else {
+            this.upcomingOrders.push(order);
+            order.totalCost = this.calculateTotalCost(order,0);
+          }
+        });
+        console.log(this.previousOrders);
+        console.log(this.upcomingOrders);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        alert("Failed to fetch orders.");
       }
-    }
-  };
-  </script>
+    },
+    calculateTotalCost(order,deliveryFee) {
+      // Calculate the total cost of items
+      const itemsTotal = order.items.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0);
+
+      // Add delivery fee (if available)
+      // const deliveryFee = order.deliveryFee || 0; 
+      return (itemsTotal + deliveryFee).toFixed(2); // Round to 2 decimal places
+    },
+  },
+};
+</script>
+
+<style scoped>
+/* Your existing styles remain unchanged */
+</style>
   
   <style scoped>
   .orders-page {

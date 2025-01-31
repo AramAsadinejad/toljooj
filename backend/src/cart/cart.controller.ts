@@ -24,6 +24,7 @@ export class CartController {
 
     @Post('decrease/')
     async decreaseQuantity(@Body('itemId') itemId:number,@Body('cartId') cartId:number){
+        console.log(itemId,cartId);
         return this.cartService.decreaseQuantity(itemId,cartId);
     }
 

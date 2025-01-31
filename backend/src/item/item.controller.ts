@@ -33,10 +33,12 @@ export class ItemController {
       )
     async createItem(
         @UploadedFile() image,
-        @Body() itemData: ItemCreationInterface
+        @Body() itemData: ItemCreationInterface,
+        @Body('categoryIds') categoryIds : number[]
     ){
         const imageUrl = image ? `/uploads/items/${image.filename}` : DEFAULT_ITEM_IMAGE_URL;
-        return this.itemService.create(itemData,imageUrl);
+        console.log(typeof categoryIds);
+        // return this.itemService.create(itemData,imageUrl);
     }
 
     @Get('category/:id/')

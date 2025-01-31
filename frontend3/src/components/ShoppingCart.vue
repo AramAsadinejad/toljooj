@@ -6,16 +6,17 @@
 
       <!-- Restaurant Carts -->
       <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
+        <div v-if="cart.isActive">
         <h2>{{ cart.restaurant.name }}</h2>
 
         <!-- Items in Cart -->
         <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
           <!-- Food Image -->
-          <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
+          <img :src="getImageUrl(item.photoUrl)" :alt="item.title" class="item-image" />
 
           <!-- Item Details -->
           <div class="item-details">
-            <p class="item-name">{{ item.name }}</p>
+            <p class="item-name">{{ item.title }}</p>
             <p class="item-price">${{ item.price.toFixed(2) }}</p>
           </div>
 
@@ -26,6 +27,7 @@
               🗑️
             </button>
           </div>
+        </div>
         </div>
 
         <!-- Total Price and Order Button -->
@@ -69,13 +71,14 @@ export default {
     async reduceQuantity(restaurantIndex, itemIndex) {
       const item = this.carts[restaurantIndex].restaurant.items[itemIndex];
       const cart = this.carts[restaurantIndex];
+      console.log(cart,item);
       try {
         // Call the API to decrease the quantity
         const response = await axios.post(
           "http://localhost:3000/cart/decrease",
           {
             itemId: item.id, // Assuming the item has an `id` field
-            cartId: cart.id
+            cartId: cart.cartId
           },
           {
             headers: {
