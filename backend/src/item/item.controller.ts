@@ -38,7 +38,9 @@ export class ItemController {
     ){
         const imageUrl = image ? `/uploads/items/${image.filename}` : DEFAULT_ITEM_IMAGE_URL;
         console.log(typeof categoryIds);
-        // return this.itemService.create(itemData,imageUrl);
+        if (typeof categoryIds === 'string')
+           categoryIds = JSON.parse(categoryIds);
+        return this.itemService.create(itemData,categoryIds,imageUrl);
     }
 
     @Get('category/:id/')

@@ -56,6 +56,16 @@ export class UserService {
         
     }
 
+    async createUser(body:RegisterInterface){
+      const query = "select * from create_user($1,$2,$3)";
+      return this.databaseService.query(query,[body.username,body.password,body.type]);
+    }
+
+    async deleteUser(id:number){
+      const query = "select * from delete_user($1)";
+      return this.databaseService.query(query,[id]);
+    }
+
     
     
 }

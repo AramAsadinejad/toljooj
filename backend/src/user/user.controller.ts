@@ -1,8 +1,9 @@
-import { Controller,Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller,Post, Body, Get, UseGuards, Delete, Param } from '@nestjs/common';
 import { UserService } from './user.service';
-import { LoginInterface, RegisterInterface, UserInterface } from './user.interface';
+import { LoginInterface, RegisterInterface, UserInterface, UserType } from './user.interface';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 import { GetUser } from './user.decorator';
+import { Roles } from './user.constancts';
 
 @Controller('user')
 export class UserController {
@@ -23,6 +24,18 @@ export class UserController {
     @UseGuards(TokenAuthGuard)
     async getMe(@GetUser() user:UserInterface){
         return user;
+    }
+
+    @Post('create/')
+    @Roles(UserType.Admin)
+    @UseGuards(TokenAuthGuard)
+    async create(@Body() body:RegisterInterface) {
+        return this.userService.createUser(body);
+    }
+
+    @Delete('delete/:id')
+    async deleteUser(@Param('id') id:number){
+      return this.userService.deleteUser(id);
     }
 }
   
