@@ -22,6 +22,7 @@ export class OrderService {
     
         for (const row of rows) {
             const cartId = row.cart_id;
+            const itemId = row.item_id;
     
             // If the cart is not already in the map, create the cart object
             if (!cartsMap.has(cartId)) {
@@ -44,17 +45,30 @@ export class OrderService {
     
             // Get the cart object from the map
             const cart = cartsMap.get(cartId);
-    
-            // Add the item to the cart
-            cart.items.push({
-                itemId: row.item_id,
-                itemTitle: row.item_title,
-                itemPrice: row.item_price,
-                itemPhotoUrl: row.item_photo_url,
-                categoryId: row.category_id,
-                categoryName: row.category_name,
-                quantity:row.item_quantity
+            // const restaurant = cart.restaurant;
+
+                      // Check if the item already exists in the restaurant's items array
+          let item = cart.items.find((i: any) => i.id === itemId);
+          if (!item) {
+            // If the item is not in the list, add it
+            item = {
+                id: itemId,
+                title: row.item_title,
+                price: row.item_price,
+                photoUrl: row.item_photo,
+                quantity: row.quantity,
+                categories: [],
+            };
+            cart.items.push(item);
+        }
+
+          // Add category to the item if it doesn't already exist
+          if (!item.categories.some((c: any) => c.id === row.category_id)) {
+            item.categories.push({
+                id: row.category_id,
+                name: row.category_name,
             });
+         }
         }
     
         // Convert the map to an array of carts
@@ -80,7 +94,7 @@ export class OrderService {
     
         for (const row of rows) {
             const cartId = row.cart_id;
-    
+            const itemId = row.item_id;
             // If the cart is not already in the map, create the cart object
             if (!cartsMap.has(cartId)) {
                 cartsMap.set(cartId, {
@@ -100,17 +114,27 @@ export class OrderService {
     
             // Get the cart object from the map
             const cart = cartsMap.get(cartId);
-    
-            // Add the item to the cart
-            cart.items.push({
-                itemId: row.item_id,
-                itemTitle: row.item_title,
-                itemPrice: row.item_price,
-                itemPhotoUrl: row.item_photo_url,
-                categoryId: row.category_id,
-                categoryName: row.category_name,
-                item_quantity : row.item_quantity
+              // Check if the item already exists in the restaurant's items array
+              let item = cart.items.find((i: any) => i.id === itemId);
+              if (!item) {
+                // If the item is not in the list, add it
+                item = {
+                    id: itemId,
+                    title: row.item_title,
+                    price: row.item_price,
+                    photoUrl: row.item_photo,
+                    quantity: row.quantity,
+                    categories: [],
+                };
+                cart.items.push(item);
+            }
+          // Add category to the item if it doesn't already exist
+          if (!item.categories.some((c: any) => c.id === row.category_id)) {
+            item.categories.push({
+                id: row.category_id,
+                name: row.category_name,
             });
+            }
         }
     
         // Convert the map to an array of carts
