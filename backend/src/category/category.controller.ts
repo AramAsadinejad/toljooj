@@ -17,7 +17,7 @@ export class CategoryController {
     }
 
     @Post('create/:id/')
-    @UseGuards(RestaurantManagerGuard)
+    // @UseGuards(RestaurantManagerGuard)
     async createCategory(@Body('name') name:string,@Param('id') restaurantId:number){
         return this.categoryService.createCategory(name,restaurantId);
     }
