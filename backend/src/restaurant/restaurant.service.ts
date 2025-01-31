@@ -162,5 +162,10 @@ export class RestaurantService {
     return this.databaseService.query(query, [managerId]);
   }
 
+  async getOpenRestsByRestaurantId(restaurantId: number) {
+    const query = `SELECT * FROM get_open_rests_by_restaurant_id($1)`;// Assuming this is the correct query
+    return this.databaseService.query(query, [restaurantId]);
+  }
+
 
 }

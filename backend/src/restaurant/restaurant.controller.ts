@@ -95,6 +95,11 @@ export class RestaurantController {
     async getManagerRestaurants(@GetUser() user:UserInterface){
       return this.restaurantService.getManagerRestaurants(user.id);
     }
+
+    @Get('open/:id/')
+    async getOpenRestsByRestaurantId(@Param('id') id:number){
+      return this.restaurantService.getOpenRestsByRestaurantId(id);
+    }
   }
 
 
