@@ -39,7 +39,7 @@ export class RestaurantController {
     }
 
     @Post('create')
-    @Roles(UserType.RestaurantManager)
+    @Roles(UserType.RestaurantManager,UserType.Admin)
     @UseInterceptors(
       FileInterceptor('image', {
         storage: diskStorage({
@@ -62,7 +62,7 @@ export class RestaurantController {
     }
 
     @Put('update/:id/')
-    @Roles(UserType.RestaurantManager)
+    @Roles(UserType.RestaurantManager,UserType.Admin)
     // @UseGuards(RestaurantManagerGuard)
     @UseInterceptors(
       FileInterceptor('image', {

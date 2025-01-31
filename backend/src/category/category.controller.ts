@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { RestaurantManagerGuard } from 'src/restaurant/restaurant.guard';
 import { TokenAuthGuard } from 'src/token/auth.guard';
@@ -20,6 +20,16 @@ export class CategoryController {
     @UseGuards(RestaurantManagerGuard)
     async createCategory(@Body('name') name:string,@Param('id') restaurantId:number){
         return this.categoryService.createCategory(name,restaurantId);
+    }
+
+    @Put('update/:id/')
+    async updateCategory(@Param('id') id:number,@Body('name') name:string){
+        return this.categoryService.updateCategory(id,name);
+    }
+
+    @Delete('delete/:id/')
+    async deleteCategory(@Param('id') id:number){
+        return this.categoryService.deleteCategory(id);
     }
 }
 
