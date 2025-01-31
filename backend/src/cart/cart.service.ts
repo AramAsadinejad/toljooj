@@ -33,6 +33,12 @@ export class CartService {
           if (!cartMap.has(cartId)) {
               cartMap.set(cartId, {
                   cartId: cartId,
+                  isActive: row.is_active,
+                  address:{
+                    addressId : row.address_id,
+                    addressValue : row.address_value,
+
+                  },
                   restaurant: {
                       id: restaurantId,
                       name: row.restaurant_name,
