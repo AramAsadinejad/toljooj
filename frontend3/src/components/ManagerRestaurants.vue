@@ -12,7 +12,7 @@
       <!-- Restaurants List -->
       <div class="restaurants-grid">
         <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
-          <img :src="restaurant.image" :alt="restaurant.name" class="restaurant-image" />
+          <img :src="getImageUrl(restaurant.image_url)" :alt="restaurant.name" class="restaurant-image" />
           <div class="restaurant-details">
             <h2>{{ restaurant.restaurant_name }}</h2>
             <p>{{ restaurant.address }}</p>
@@ -149,7 +149,6 @@
 <script>
 import ManagerHeader from "./ManagerHeader.vue";
 import axios from "axios";
-
 export default {
   name: "ManageRestaurants",
   components: {
@@ -157,42 +156,103 @@ export default {
   },
   data() {
     return {
-      showAddRestaurantForm: false,
-      showEditRestaurantForm: false,
+      showAddRestaurantForm: false, // Toggle add form visibility
+      showEditRestaurantForm: false, // Toggle edit form visibility
       newRestaurant: {
         name: "",
-        image: null,
+        image: "",
         address: "",
         min_purchase: 0,
-        delivery_radius: 0,
         locationX: 0,
         locationY: 0,
-        openingHours: [],
+        delivery_radius: 0,
+        openingHours: [], // Array to store opening hours
       },
       editRestaurant: {
         id: null,
         name: "",
-        image: null,
+        image: "",
         address: "",
         minPurchase: 0,
         deliveryRadius: 0,
-        openingHours: [],
+        openingHours: [], // Array to store opening hours
       },
-      restaurants: [],
-      token: localStorage.getItem("token"),
+      restaurants: [
+      ],
+      token:localStorage.getItem("token")
     };
   },
   created() {
+    console.log(this.token);
     if (!this.token) {
       alert("You must be logged in to view this page.");
-      this.$router.push("/login");
-    } else {
+      this.$router.push("/login"); // Redirect to login page
+    }else {
       this.getRestaurants();
     }
   },
   methods: {
-    // Your existing methods (addOpeningHour, removeOpeningHour, etc.) remain unchanged
+    // Add a new opening hour field to the add form
+    addOpeningHour() {
+      this.newRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
+    },
 
+    // Remove an opening hour field from the add form
+    removeOpeningHour(index) {
+      this.newRestaurant.openingHours.splice(index, 1);
+    },
+
+    // Add a new opening hour field to the edit form
+    addEditOpeningHour() {
+      this.editRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
+    },
+
+    // Remove an opening hour field from the edit form
+    removeEditOpeningHour(index) {
+      this.editRestaurant.openingHours.splice(index, 1);
+    },
+
+    // Open the edit form and pre-fill it with the restaurant's details
+    
+
+    // Close the edit form
+    closeEditForm() {
+      this.showEditRestaurantForm = false; // Hide the edit form
+      this.editRestaurant = {
+        id: null,
+        name: "",
+        image: "",
+        address: "",
+        minPurchase: 0,
+        deliveryRadius: 0,
+        openingHours: [],
+      }; // Reset the edit form
+    },
+    getImageUrl(imageUrl) {
+      return "http://localhost:3000" + imageUrl;
+    },
+    async getRestaurants(){
+      try {
+        const response=await axios.get(
+          "http://localhost:3000/restaurant/manager/all/", {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        
+        this.restaurants = response.data;
+        console.log(response.data);
+        console.log(this.restaurants); 
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+        alert("Failed to fetch restaurants.");
+      }
+    },
+
+    handleImageUpload(event) {
+    this.newRestaurant.image = event.target.files[0]; // Store the selected file
+    },
+    
     async submitRestaurantForm() {
       try {
         const formData = new FormData();
@@ -354,6 +414,8 @@ export default {
         alert("Failed to fetch opening hours. Please try again.");
       }
     },
+
+
   },
 };
 </script>
