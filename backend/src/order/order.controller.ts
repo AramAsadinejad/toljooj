@@ -47,4 +47,9 @@ export class OrderController {
         return this.orderService.getAllOrders();
     }
 
+    @Delete('/actual-delete/:id/')
+    async deleteOrder(@Param('id') orderId:number){
+        return this.orderService.deleteOrder(orderId);
+    }
+
 }

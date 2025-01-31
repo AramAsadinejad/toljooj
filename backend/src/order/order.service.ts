@@ -174,4 +174,15 @@ export class OrderService {
         const result = await this.databaseService.query<any>(query,[]);
         return this.formatOrdersByRestaurant(result);
     }
+
+    async deleteOrder(orderId:number) {
+        const query = "select * from delete_order($1)";
+        const result = await this.databaseService.query<any>(query,[orderId]);
+        // log(result);
+        const deleteOrder = result[0].delete_order;
+        if (deleteOrder) {
+            return result;
+        }
+        throw new HttpException("bad request",400);
+    }
 }
