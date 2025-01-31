@@ -19,6 +19,7 @@
             <p>Min Purchase: ${{ restaurant.minPurchase.toFixed(2) }}</p>
             <p>Delivery Radius: {{ restaurant.deliveryRadius }} km</p>
             <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
+            <button class="order-button" :to="`/restaurants/${restaurant.restaurant_id}`">View Menu</button>
           </div>
         </div>
       </div>
@@ -177,30 +178,6 @@ export default {
         openingHours: [], // Array to store opening hours
       },
       restaurants: [
-        {
-          id: 1,
-          name: "The Golden Fork",
-          image: "https://via.placeholder.com/300x200?text=Golden+Fork",
-          address: "123 Main St, City, Country",
-          minPurchase: 15.0,
-          deliveryRadius: 5,
-          openingHours: [
-            { day: "Monday", open: "09:00", close: "18:00" },
-            { day: "Saturday", open: "12:00", close: "20:00" },
-          ],
-        },
-        {
-          id: 2,
-          name: "Mustard Grill",
-          image: "https://via.placeholder.com/300x200?text=Mustard+Grill",
-          address: "456 Elm St, Town, Country",
-          minPurchase: 10.0,
-          deliveryRadius: 3,
-          openingHours: [
-            { day: "Tuesday", open: "10:00", close: "19:00" },
-            { day: "Friday", open: "11:00", close: "21:00" },
-          ],
-        },
       ],
       token:localStorage.getItem("token")
     };
@@ -210,6 +187,9 @@ export default {
     if (!this.token) {
       alert("You must be logged in to view this page.");
       this.$router.push("/login"); // Redirect to login page
+    }else {
+      this.restaurant.id = this.$route.params.restaurant_id;
+      this.fetchRestaurants();
     }
   },
   methods: {
@@ -252,7 +232,21 @@ export default {
         openingHours: [],
       }; // Reset the edit form
     },
-
+    async getRestaurants(){
+      try {
+        const response=axios.get(
+          "http://localhost:3000/restaurant/mine/", {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+        
+        this.restaurants = response.data; 
+      } catch (error) {
+        console.error("Error fetching restaurants:", error);
+        alert("Failed to fetch restaurants.");
+      }
+    },
     // Submit the edit form
      async submitEditForm() {
       try {
@@ -570,5 +564,19 @@ input:focus {
 
 .cancel-button:hover {
   background-color: #500000; /* Darker red */
+}
+
+.order-button {
+    background-color: #c49a6c; /* Mustard */
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+.order-button:hover {
+  background-color: #6b4423; /* Dark brown on hover */
 }
 </style>

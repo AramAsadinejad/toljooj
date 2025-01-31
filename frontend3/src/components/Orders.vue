@@ -19,10 +19,10 @@
             </div>
   
             <!-- Order Summary -->
-            <div class="order-summary faded">
+            <!-- <div class="order-summary faded">
               <p class="faded">Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
               <p class="total-cost faded">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div>
+            </div> -->
           </div>
         </div>
   
@@ -43,10 +43,10 @@
             </div>
   
             <!-- Order Summary -->
-            <div class="order-summary">
+            <!-- <div class="order-summary">
               <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
               <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div>
+            </div> -->
   
             <!-- Order Status -->
             <div class="order-status">
@@ -74,31 +74,44 @@
             totalCost: 0
           }
         ],
-  
+        token: localStorage.getItem("token"),
         // Example data for upcoming orders
         upcomingOrders: [
-          {
-            restaurantName: "Pizza Palace",
-            deliveryAddress: "789 Oak St, Village, Country",
-            items: [
-              {
-                name: "Pepperoni Pizza",
-                quantity: 1,
-                image: "https://via.placeholder.com/100x100?text=Pizza",
-              },
-              {
-                name: "Garlic Knots",
-                quantity: 2,
-                image: "https://via.placeholder.com/100x100?text=Knots",
-              },
-            ],
-            deliveryFee: 6.99,
-            totalCost: 28.97,
-            status: "On the way",
-          },
         ],
       };
     },
+    created(){
+      if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      console.log(this.token);
+      this.fetchOrders(); // Fetch restaurants data
+    }
+    },
+    methods:{
+      async fetchOrders(){
+          try {
+          const response = await axios.get("http://localhost:3000/order/mine/", {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          });
+          const orders=response.data;
+          orders.forEach((order)=>{
+            if (order.status===false){
+              this.previousOrders.push(order);
+            }else{
+              this.upcomingOrders.push(order);
+            }
+          })
+          
+        } catch (error) {
+          console.error("Error fetching orders:", error);
+          alert("Failed to fetch orders.");
+        }
+      }
+    }
   };
   </script>
   
