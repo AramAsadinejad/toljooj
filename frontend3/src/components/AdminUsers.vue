@@ -2,10 +2,9 @@
     <div class="admin-users-page">
       <UserHeaders />
       <div class="admin-users-container">
-        <h1>Users List</h1>
-  
-        <!-- Users List -->
+        <!-- Left Side: Users List -->
         <div class="users-list">
+          <h1>Users List</h1>
           <div v-for="user in users" :key="user.userId" class="user-card">
             <div class="user-header" @click="toggleAddresses(user.userId)">
               <p class="username">{{ user.username }}</p>
@@ -28,70 +27,73 @@
           </div>
         </div>
   
-        <!-- Create User Form -->
-        <div class="create-user-form">
-          <h2>Create New User</h2>
-          <form @submit.prevent="submitCreateUserForm">
-            <div class="form-group">
-              <label for="username">Username</label>
-              <input type="text" id="username" v-model="newUser.username" required />
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" id="password" v-model="newUser.password" required />
-            </div>
-            <div class="form-group">
-              <label for="role">Role</label>
-              <select id="role" v-model="newUser.type" required>
-                <option value="User">User</option>
-                <option value="RestaurantManager">Restaurant Manager</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-            <button type="submit" class="submit-button">Create User</button>
-          </form>
-        </div>
+        <!-- Right Side: Forms -->
+        <div class="forms-container">
+          <!-- Create User Form -->
+          <div class="create-user-form">
+            <h2>Create New User</h2>
+            <form @submit.prevent="submitCreateUserForm">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" v-model="newUser.username" required />
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" v-model="newUser.password" required />
+              </div>
+              <div class="form-group">
+                <label for="role">Role</label>
+                <select id="role" v-model="newUser.type" required>
+                  <option value="User">User</option>
+                  <option value="RestaurantManager">Restaurant Manager</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <button type="submit" class="submit-button">Create User</button>
+            </form>
+          </div>
   
-        <!-- Edit User Form -->
-        <div v-if="showEditForm" class="edit-user-form">
-          <h2>Edit User</h2>
-          <form @submit.prevent="submitEditForm">
-            <div class="form-group">
-              <label for="edit-username">Username</label>
-              <input type="text" id="edit-username" v-model="editUser.username" required />
-            </div>
-            <div class="form-group">
-              <label for="edit-password">Password</label>
-              <input type="password" id="edit-password" v-model="editUser.password" required />
-            </div>
-            <div class="form-group">
-              <label for="edit-role">Role</label>
-              <select id="edit-role" v-model="editUser.type" required>
-                <option value="User">User</option>
-                <option value="RestaurantManager">Restaurant Manager</option>
-                <option value="Admin">Admin</option>
-              </select>
-            </div>
-            <button type="submit" class="submit-button">Save Changes</button>
-            <button type="button" class="cancel-button" @click="closeEditForm">Cancel</button>
-          </form>
-        </div>
+          <!-- Edit User Form -->
+          <div v-if="showEditForm" class="edit-user-form">
+            <h2>Edit User</h2>
+            <form @submit.prevent="submitEditForm">
+              <div class="form-group">
+                <label for="edit-username">Username</label>
+                <input type="text" id="edit-username" v-model="editUser.username" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-password">Password</label>
+                <input type="password" id="edit-password" v-model="editUser.password" required />
+              </div>
+              <div class="form-group">
+                <label for="edit-role">Role</label>
+                <select id="edit-role" v-model="editUser.type" required>
+                  <option value="User">User</option>
+                  <option value="RestaurantManager">Restaurant Manager</option>
+                  <option value="Admin">Admin</option>
+                </select>
+              </div>
+              <button type="submit" class="submit-button">Save Changes</button>
+              <button type="button" class="cancel-button" @click="closeEditForm">Cancel</button>
+            </form>
+          </div>
   
-        <!-- Edit Address Form -->
-        <div v-if="showEditAddressForm" class="edit-address-form">
-          <h2>Edit Address</h2>
-          <form @submit.prevent="submitEditAddressForm">
-            <div class="form-group">
-              <label for="edit-address-id">Address ID</label>
-              <input type="text" id="edit-address-id" v-model="editAddress.addressId" disabled />
-            </div>
-            <div class="form-group">
-              <label for="edit-is-default">Is Default</label>
-              <input type="checkbox" id="edit-is-default" v-model="editAddress.isDefault" />
-            </div>
-            <button type="submit" class="submit-button">Save Changes</button>
-            <button type="button" class="cancel-button" @click="closeEditAddressForm">Cancel</button>
-          </form>
+          <!-- Edit Address Form -->
+          <div v-if="showEditAddressForm" class="edit-address-form">
+            <h2>Edit Address</h2>
+            <form @submit.prevent="submitEditAddressForm">
+              <div class="form-group">
+                <label for="edit-address-id">Address ID</label>
+                <input type="text" id="edit-address-id" v-model="editAddress.addressId" disabled />
+              </div>
+              <div class="form-group">
+                <label for="edit-is-default">Is Default</label>
+                <input type="checkbox" id="edit-is-default" v-model="editAddress.isDefault" />
+              </div>
+              <button type="submit" class="submit-button">Save Changes</button>
+              <button type="button" class="cancel-button" @click="closeEditAddressForm">Cancel</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
@@ -308,21 +310,40 @@
   }
   
   .admin-users-container {
+    display: flex;
+    gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
+  }
+  
+  .users-list {
+    flex: 2; /* Take up 2/3 of the space */
+    background-color: #ffffff; /* White */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .forms-container {
+    flex: 1; /* Take up 1/3 of the space */
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between forms */
+  }
+  
+  .create-user-form,
+  .edit-user-form,
+  .edit-address-form {
+    background-color: #ffffff; /* White */
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   h1 {
     text-align: center;
     color: #6b4423; /* Dark brown */
     margin-bottom: 20px;
-  }
-  
-  .users-list {
-    background-color: #ffffff; /* White */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   .user-card {
@@ -383,16 +404,6 @@
   .address-actions {
     display: flex;
     gap: 10px;
-  }
-  
-  .create-user-form,
-  .edit-user-form,
-  .edit-address-form {
-    background-color: #ffffff; /* White */
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
   h2 {
