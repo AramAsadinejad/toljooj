@@ -7,7 +7,7 @@
       <div class="header-overlay">
         <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.address }}</p>
-        <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase.toFixed(2) }}</p>
+        <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
       </div>
     </div>
 
@@ -102,10 +102,10 @@
         <!-- Items Grid -->
         <div class="items-grid">
           <div v-for="item in category.items" :key="item.title" class="item-card">
-            <img :src="item.photo" :alt="item.title" class="item-image" />
+            <img :src="getImageUrl(item.photo)" :alt="item.title" class="item-image" />
             <div class="item-details">
               <h3>{{ item.title }}</h3>
-              <p class="item-price">${{ item.price.toFixed(2) }}</p>
+              <p class="item-price">${{ item.price }}</p>
               <span class="edit-icon" @click="openEditItemForm(item)">✏️</span>
             </div>
           </div>
@@ -211,6 +211,9 @@ export default {
     }
   },
   methods: {
+    getImageUrl(imageUrl) {
+      return "http://localhost:3000" + imageUrl;
+    },
     async fetchRestaurantDetails() {
       try {
         const response = await axios.get(
@@ -304,6 +307,7 @@ export default {
         );
 
         category.items.push(response.data);
+        this.fetchRestaurantDetails();
         this.cancelAddItemForm();
       } catch (error) {
         console.error("Error adding item:", error);
