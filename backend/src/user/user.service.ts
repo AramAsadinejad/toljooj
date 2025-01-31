@@ -66,6 +66,16 @@ export class UserService {
       return this.databaseService.query(query,[id]);
     }
 
+    async updateUser(id:number,username:string){
+      const query = "select * from update_username($1,$2)";
+      return this.databaseService.query(query,[id,username]);
+    }
+
+    async getAllUsers(){
+      const query = "select * from get_all_users()";
+      return this.databaseService.query(query);
+    }
+
     
     
 }

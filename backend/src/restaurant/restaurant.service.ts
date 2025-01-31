@@ -74,7 +74,7 @@ export class RestaurantService {
 
   async create(body:RestaurantCreationInterface){
     const query = `
-    SELECT create_restaurant(
+    SELECT * from create_restaurant(
       $1, $2, $3, $4, $5, $6, $7, $8
     );
     `;
