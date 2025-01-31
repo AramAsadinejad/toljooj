@@ -3,6 +3,7 @@ import { TokenAuthGuard } from 'src/token/auth.guard';
 import { CartService } from './cart.service';
 import { GetUser } from 'src/user/user.decorator';
 import { UserInterface } from 'src/user/user.interface';
+import { log } from 'console';
 
 @Controller('cart')
 @UseGuards(TokenAuthGuard)
@@ -19,6 +20,7 @@ export class CartController {
 
     @Post('add')
     async addToCart(@GetUser() user:UserInterface,@Body('itemId') itemId ,@Body('quantity') quantity){
+        log(quantity);
         return this.cartService.addToCart(user,itemId,quantity);
     }
 

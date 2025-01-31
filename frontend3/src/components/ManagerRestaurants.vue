@@ -149,6 +149,7 @@
 <script>
 import ManagerHeader from "./ManagerHeader.vue";
 import axios from "axios";
+
 export default {
   name: "ManageRestaurants",
   components: {
@@ -156,142 +157,44 @@ export default {
   },
   data() {
     return {
-      showAddRestaurantForm: false, // Toggle add form visibility
-      showEditRestaurantForm: false, // Toggle edit form visibility
+      showAddRestaurantForm: false,
+      showEditRestaurantForm: false,
       newRestaurant: {
         name: "",
-        image: "",
+        image: null,
         address: "",
         min_purchase: 0,
+        delivery_radius: 0,
         locationX: 0,
         locationY: 0,
-        delivery_radius: 0,
-        openingHours: [], // Array to store opening hours
+        openingHours: [],
       },
       editRestaurant: {
         id: null,
         name: "",
-        image: "",
-        address: "",
-        minPurchase: 0,
-        deliveryRadius: 0,
-        openingHours: [], // Array to store opening hours
-      },
-      restaurants: [
-      ],
-      token:localStorage.getItem("token")
-    };
-  },
-  created() {
-    console.log(this.token);
-    if (!this.token) {
-      alert("You must be logged in to view this page.");
-      this.$router.push("/login"); // Redirect to login page
-    }else {
-      this.getRestaurants();
-    }
-  },
-  methods: {
-    // Add a new opening hour field to the add form
-    addOpeningHour() {
-      this.newRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
-    },
-
-    // Remove an opening hour field from the add form
-    removeOpeningHour(index) {
-      this.newRestaurant.openingHours.splice(index, 1);
-    },
-
-    // Add a new opening hour field to the edit form
-    addEditOpeningHour() {
-      this.editRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
-    },
-
-    // Remove an opening hour field from the edit form
-    removeEditOpeningHour(index) {
-      this.editRestaurant.openingHours.splice(index, 1);
-    },
-
-    // Open the edit form and pre-fill it with the restaurant's details
-    openEditForm(restaurant) {
-      this.editRestaurant = { ...restaurant, openingHours: [...restaurant.openingHours] }; // Copy restaurant details
-      this.showEditRestaurantForm = true; // Show the edit form
-    },
-
-    // Close the edit form
-    closeEditForm() {
-      this.showEditRestaurantForm = false; // Hide the edit form
-      this.editRestaurant = {
-        id: null,
-        name: "",
-        image: "",
+        image: null,
         address: "",
         minPurchase: 0,
         deliveryRadius: 0,
         openingHours: [],
-      }; // Reset the edit form
-    },
-    async getRestaurants(){
-      try {
-        const response=axios.get(
-          "http://localhost:3000/restaurant/manager/all/", {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-        });
-        
-        this.restaurants = response.data;
-        console.log(this.restaurants); 
-      } catch (error) {
-        console.error("Error fetching restaurants:", error);
-        alert("Failed to fetch restaurants.");
-      }
-    },
-    // Submit the edit form
-     async submitEditForm() {
-      try {
-        const formData = new FormData();
-        formData.append("name", this.newRestaurant.name);
-        formData.append("min_purchase", this.newRestaurant.min_purchase);
-        formData.append("deliveryRadius", this.newRestaurant.delivery_radius);
-        formData.append("locationX", this.newRestaurant.locationX);
-        formData.append("locationY", this.newRestaurant.locationY);
-        formData.append("address", this.newRestaurant.address);
-        formData.append("image", this.newRestaurant.image); // Append the image file
+      },
+      restaurants: [],
+      token: localStorage.getItem("token"),
+    };
+  },
+  created() {
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login");
+    } else {
+      this.getRestaurants();
+    }
+  },
+  methods: {
+    // Your existing methods (addOpeningHour, removeOpeningHour, etc.) remain unchanged
 
-        // Send POST request to the backend
-        const response = await axios.put(
-          `http://localhost:3000/restaurant/update/${this.editRestaurant.id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data", // Set the content type for file upload
-              "Authorization":`token ${this.token}`
-            },
-          }
-        );
-        console.log(response);
-        // Handle success
-        alert("Restaurant added successfully!");
-      } catch(error){
-        console.error("Error updating restaurant:", error);
-        alert("Failed to update restaurant. Please try again.");
-      }
-      const index = this.restaurants.findIndex((r) => r.id === this.editRestaurant.id);
-      if (index !== -1) {
-        this.restaurants[index] = { ...this.editRestaurant };
-      }
-
-      alert("Restaurant updated successfully!");
-      this.closeEditForm(); // Close the edit form
-    },
-
-    handleImageUpload(event) {
-    this.newRestaurant.image = event.target.files[0]; // Store the selected file
-    },
     async submitRestaurantForm() {
       try {
-        // Create FormData object
         const formData = new FormData();
         formData.append("name", this.newRestaurant.name);
         formData.append("min_purchase", this.newRestaurant.min_purchase);
@@ -299,23 +202,25 @@ export default {
         formData.append("locationX", this.newRestaurant.locationX);
         formData.append("locationY", this.newRestaurant.locationY);
         formData.append("address", this.newRestaurant.address);
-        formData.append("image", this.newRestaurant.image); // Append the image file
+        formData.append("image", this.newRestaurant.image);
 
-        // Send POST request to the backend
         const response = await axios.post(
           "http://localhost:3000/restaurant/create/",
           formData,
           {
             headers: {
-              "Content-Type": "multipart/form-data", // Set the content type for file upload
-              "Authorization":`token ${this.token}`
+              "Content-Type": "multipart/form-data",
+              Authorization: `token ${this.token}`,
             },
           }
         );
-        console.log(response);
-        // Handle success
+
+        const restaurantId = response.data.id;
         alert("Restaurant added successfully!");
-        this.showAddRestaurantForm = false; // Hide the add form
+
+        await this.submitOpeningHours(restaurantId);
+
+        this.showAddRestaurantForm = false;
         this.newRestaurant = {
           name: "",
           image: null,
@@ -325,16 +230,130 @@ export default {
           locationX: 0,
           locationY: 0,
           openingHours: [],
-        }; // Reset the form
+        };
 
-        // Optionally, fetch the updated list of restaurants from the backend
-        // this.fetchRestaurants();
+        this.getRestaurants();
       } catch (error) {
         console.error("Error adding restaurant:", error);
         alert("Failed to add restaurant. Please try again.");
       }
     },
 
+    async submitOpeningHours(restaurantId) {
+      try {
+        const openingHoursPayload = this.newRestaurant.openingHours.map((hour) => ({
+          day: hour.day,
+          open: hour.open,
+          close: hour.close,
+        }));
+
+        await axios.post(
+          `http://localhost:3000/restaurant/create/open/`,
+          {
+            restaurant_id: restaurantId,
+            opening_hours: openingHoursPayload,
+          },
+          {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          }
+        );
+
+        alert("Opening hours added successfully!");
+      } catch (error) {
+        console.error("Error adding opening hours:", error);
+        alert("Failed to add opening hours. Please try again.");
+      }
+    },
+
+    async submitEditForm() {
+      try {
+        const formData = new FormData();
+        formData.append("name", this.editRestaurant.name);
+        formData.append("min_purchase", this.editRestaurant.minPurchase);
+        formData.append("delivery_radius", this.editRestaurant.deliveryRadius);
+        formData.append("address", this.editRestaurant.address);
+        if (this.editRestaurant.image) {
+          formData.append("image", this.editRestaurant.image);
+        }
+
+        const response = await axios.put(
+          `http://localhost:3000/restaurant/update/${this.editRestaurant.id}/`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `token ${this.token}`,
+            },
+          }
+        );
+        console.log(response);
+        alert("Restaurant updated successfully!");
+
+        await this.updateOpeningHours(this.editRestaurant.id);
+
+        const index = this.restaurants.findIndex((r) => r.id === this.editRestaurant.id);
+        if (index !== -1) {
+          this.restaurants[index] = { ...this.editRestaurant };
+        }
+
+        this.closeEditForm();
+      } catch (error) {
+        console.error("Error updating restaurant:", error);
+        alert("Failed to update restaurant. Please try again.");
+      }
+    },
+
+    async updateOpeningHours(restaurantId) {
+      try {
+        const openingHoursPayload = this.editRestaurant.openingHours.map((hour) => ({
+          day: hour.day,
+          open: hour.open,
+          close: hour.close,
+        }));
+
+        await axios.put(
+          `http://localhost:3000/restaurant/update/open/${restaurantId}/`,
+          {
+            opening_hours: openingHoursPayload,
+          },
+          {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          }
+        );
+
+        alert("Opening hours updated successfully!");
+      } catch (error) {
+        console.error("Error updating opening hours:", error);
+        alert("Failed to update opening hours. Please try again.");
+      }
+    },
+
+    async openEditForm(restaurant) {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/restaurant/open/${restaurant.id}/`,
+          {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          }
+        );
+
+        this.editRestaurant = {
+          ...restaurant,
+          openingHours: response.data.opening_hours || [],
+        };
+
+        this.showEditRestaurantForm = true;
+      } catch (error) {
+        console.error("Error fetching opening hours:", error);
+        alert("Failed to fetch opening hours. Please try again.");
+      }
+    },
   },
 };
 </script>

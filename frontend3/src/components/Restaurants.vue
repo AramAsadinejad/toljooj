@@ -9,7 +9,7 @@
             <div class="restaurant-details">
               <h2>{{ restaurant.restaurant_name }}</h2>
               <p>{{ restaurant.restaurant_address }}</p>
-              <button class="order-button" :to="`/restaurants/${restaurant.restaurant_id}`">View Menu</button>
+              <button class="order-button" @click="$router.push(`/restaurants/${restaurant.restaurant_id}`)">View Menu</button>
             </div>
           </div>
         </div>
