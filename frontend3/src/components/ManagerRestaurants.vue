@@ -8,22 +8,6 @@
       <div class="add-restaurant-card" @click="showAddRestaurantForm = true">
         <span>+ Add New Restaurant</span>
       </div>
-
-      <!-- Restaurants List -->
-      <div class="restaurants-grid">
-        <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
-          <img :src="getImageUrl(restaurant.image_url)" :alt="restaurant.name" class="restaurant-image" />
-          <div class="restaurant-details">
-            <h2>{{ restaurant.restaurant_name }}</h2>
-            <p>{{ restaurant.address }}</p>
-            <p>Min Purchase: ${{ restaurant.min_purchase }}</p>
-            <p>Delivery Radius: {{ restaurant.delivery_radius }} km</p>
-            <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
-            <button class="order-button" :to="`/restaurants/${restaurant.restaurant_id}`">View Menu</button>
-          </div>
-        </div>
-      </div>
-
       <!-- Add Restaurant Form -->
       <div v-if="showAddRestaurantForm" class="add-restaurant-form">
         <h2>Add New Restaurant</h2>
@@ -83,7 +67,6 @@
           <button type="button" class="cancel-button" @click="showAddRestaurantForm = false">Cancel</button>
         </form>
       </div>
-
       <!-- Edit Restaurant Form -->
       <div v-if="showEditRestaurantForm" class="edit-restaurant-form">
         <h2>Edit Restaurant</h2>
@@ -142,6 +125,25 @@
           <button type="button" class="cancel-button" @click="closeEditForm">Cancel</button>
         </form>
       </div>
+
+      <!-- Restaurants List -->
+      <div class="restaurants-grid">
+        <div v-for="restaurant in restaurants" :key="restaurant.restaurant_id" class="restaurant-card">
+          <img :src="getImageUrl(restaurant.image_url)" :alt="restaurant.name" class="restaurant-image" />
+          <div class="restaurant-details">
+            <h2>{{ restaurant.restaurant_name }}</h2>
+            <p>{{ restaurant.address }}</p>
+            <p>Min Purchase: ${{ restaurant.min_purchase }}</p>
+            <p>Delivery Radius: {{ restaurant.delivery_radius }} km</p>
+            <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
+            <button class="order-button" @click="$router.push(`/restaurants/${restaurant.restaurant_id}`)">View Menu</button>
+          </div>
+        </div>
+      </div>
+
+      
+
+      
     </div>
   </div>
 </template>

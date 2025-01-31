@@ -7,7 +7,7 @@
       <div class="header-overlay">
         <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.address }}</p>
-        <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase.toFixed(2) }}</p>
+        <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
       </div>
     </div>
 
@@ -32,7 +32,7 @@
             <img :src="getImageUrl(item.photo)" :alt="item.title" class="item-image" />
             <div class="item-details">
               <h3>{{ item.title }}</h3>
-              <p class="item-price">${{ item.price.toFixed(2) }}</p>
+              <p class="item-price">${{ item.price }}</p>
               <div class="quantity-controls">
                 <button @click="decreaseQuantity(item)" class="quantity-button">-</button>
                 <span class="quantity">{{ item.quantity }}</span>

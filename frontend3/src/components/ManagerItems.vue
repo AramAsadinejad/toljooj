@@ -1,6 +1,6 @@
 <template>
   <div class="items-page">
-    <UserHeaders />
+    <ManagerHeader />
     <!-- Big Header with Restaurant Photo and Details -->
     <div class="restaurant-header">
       <img src="@/assets/cheese.jpg" alt="Restaurant Photo" class="header-image" />
@@ -145,13 +145,13 @@
 </template>
 
 <script>
-import UserHeaders from "./UserHeader.vue";
+import ManagerHeader from "./ManagerHeader.vue";
 import axios from "axios";
 
 export default {
   name: "ManagerItems",
   components: {
-    UserHeaders,
+    ManagerHeader,
   },
   data() {
     return {

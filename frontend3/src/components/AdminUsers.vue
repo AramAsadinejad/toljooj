@@ -1,23 +1,34 @@
 <template>
     <div class="admin-users-page">
-      <AdminHeader />
+      <UserHeaders />
       <div class="admin-users-container">
-        <!-- Left Side: Users List -->
+        <h1>Users List</h1>
+  
+        <!-- Users List -->
         <div class="users-list">
-          <h1>Users List</h1>
-          <div v-for="user in users" :key="user.id" class="user-card">
-            <div class="user-info">
+          <div v-for="user in users" :key="user.userId" class="user-card">
+            <div class="user-header" @click="toggleAddresses(user.userId)">
               <p class="username">{{ user.username }}</p>
-              <p class="address">{{ user.address }}</p>
+              <div class="user-actions">
+                <span class="edit-icon" @click.stop="openEditForm(user)">✏️</span>
+                <span class="delete-icon" @click.stop="deleteUser(user.userId)">🗑️</span>
+              </div>
             </div>
-            <div class="user-actions">
-              <span class="edit-icon" @click="openEditForm(user)">✏️</span>
-              <span class="delete-icon" @click="deleteUser(user.id)">🗑️</span>
+  
+            <!-- Addresses Dropdown -->
+            <div v-if="expandedUser === user.userId" class="addresses-dropdown">
+              <div v-for="address in user.addresses" :key="address.addressId" class="address-item">
+                <p class="address">Address ID: {{ address.addressId }} ({{ address.isDefault ? "Default" : "Not Default" }})</p>
+                <div class="address-actions">
+                  <span class="edit-icon" @click.stop="openEditAddressForm(address)">✏️</span>
+                  <span class="delete-icon" @click.stop="deleteAddress(address.addressId)">🗑️</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
   
-        <!-- Right Side: Create User Form -->
+        <!-- Create User Form -->
         <div class="create-user-form">
           <h2>Create New User</h2>
           <form @submit.prevent="submitCreateUserForm">
@@ -65,18 +76,35 @@
             <button type="button" class="cancel-button" @click="closeEditForm">Cancel</button>
           </form>
         </div>
+  
+        <!-- Edit Address Form -->
+        <div v-if="showEditAddressForm" class="edit-address-form">
+          <h2>Edit Address</h2>
+          <form @submit.prevent="submitEditAddressForm">
+            <div class="form-group">
+              <label for="edit-address-id">Address ID</label>
+              <input type="text" id="edit-address-id" v-model="editAddress.addressId" disabled />
+            </div>
+            <div class="form-group">
+              <label for="edit-is-default">Is Default</label>
+              <input type="checkbox" id="edit-is-default" v-model="editAddress.isDefault" />
+            </div>
+            <button type="submit" class="submit-button">Save Changes</button>
+            <button type="button" class="cancel-button" @click="closeEditAddressForm">Cancel</button>
+          </form>
+        </div>
       </div>
     </div>
   </template>
   
   <script>
-  import AdminHeader from "./AdminHeader.vue";
+  import UserHeaders from "./UserHeader.vue";
   import axios from "axios";
   
   export default {
     name: "AdminUser",
     components: {
-      AdminHeader,
+      UserHeaders,
     },
     data() {
       return {
@@ -87,12 +115,18 @@
           type: "User", // Default role
         },
         editUser: {
-          id: null,
+          userId: null,
           username: "",
           password: "",
           type: "User",
         },
-        showEditForm: false, // Toggle edit form visibility
+        editAddress: {
+          addressId: null,
+          isDefault: false,
+        },
+        showEditForm: false, // Toggle edit user form visibility
+        showEditAddressForm: false, // Toggle edit address form visibility
+        expandedUser: null, // Track which user's addresses are expanded
         token: localStorage.getItem("token"),
       };
     },
@@ -105,6 +139,49 @@
       }
     },
     methods: {
+      // Fetch all users from the API
+      async fetchUsers() {
+        try {
+          const response = await axios.get("http://localhost:3000/user/getall/", {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          });
+          this.users = response.data;
+        } catch (error) {
+          console.error("Error fetching users:", error);
+          alert("Failed to fetch users. Please try again.");
+        }
+      },
+  
+      // Toggle addresses dropdown for a user
+      toggleAddresses(userId) {
+        this.expandedUser = this.expandedUser === userId ? null : userId;
+      },
+  
+      // Open the edit user form
+      openEditForm(user) {
+        this.editUser = { ...user };
+        this.showEditForm = true;
+      },
+  
+      // Close the edit user form
+      closeEditForm() {
+        this.showEditForm = false;
+        this.editUser = { userId: null, username: "", password: "", type: "User" };
+      },
+  
+      // Open the edit address form
+      openEditAddressForm(address) {
+        this.editAddress = { ...address };
+        this.showEditAddressForm = true;
+      },
+  
+      // Close the edit address form
+      closeEditAddressForm() {
+        this.showEditAddressForm = false;
+        this.editAddress = { addressId: null, isDefault: false };
+      },
   
       // Submit the create user form
       async submitCreateUserForm() {
@@ -132,35 +209,11 @@
         }
       },
   
-      // Open the edit form with the selected user's data
-      openEditForm(user) {
-        this.editUser = { ...user };
-        this.showEditForm = true;
-      },
-  
-      // Close the edit form
-      closeEditForm() {
-        this.showEditForm = false;
-        this.editUser = { id: null, username: "", password: "", type: "User" };
-      },
-      async fetchUsers() {
-        try {
-        const response = await axios.get("http://localhost:3000/user/getall/", {
-            headers: {
-            Authorization: `token ${this.token}`,
-            },
-        });
-        this.users = response.data; // Populate the users array with the response data
-        } catch (error) {
-        console.error("Error fetching users:", error);
-        alert("Failed to fetch users. Please try again.");
-        }
-    },
       // Submit the edit user form
       async submitEditForm() {
         try {
           await axios.put(
-            `http://localhost:3000/user/update/${this.editUser.id}/`,
+            `http://localhost:3000/user/update/${this.editUser.userId}/`,
             {
               username: this.editUser.username,
               password: this.editUser.password,
@@ -182,6 +235,30 @@
         }
       },
   
+      // Submit the edit address form
+      async submitEditAddressForm() {
+        try {
+          await axios.put(
+            `http://localhost:3000/address/update/${this.editAddress.addressId}/`,
+            {
+              isDefault: this.editAddress.isDefault,
+            },
+            {
+              headers: {
+                Authorization: `token ${this.token}`,
+              },
+            }
+          );
+  
+          alert("Address updated successfully!");
+          this.closeEditAddressForm();
+          this.fetchUsers(); // Refresh the users list
+        } catch (error) {
+          console.error("Error updating address:", error);
+          alert("Failed to update address. Please try again.");
+        }
+      },
+  
       // Delete a user
       async deleteUser(userId) {
         if (confirm("Are you sure you want to delete this user?")) {
@@ -200,6 +277,25 @@
           }
         }
       },
+  
+      // Delete an address
+      async deleteAddress(addressId) {
+        if (confirm("Are you sure you want to delete this address?")) {
+          try {
+            await axios.delete(`http://localhost:3000/address/delete/${addressId}/`, {
+              headers: {
+                Authorization: `token ${this.token}`,
+              },
+            });
+  
+            alert("Address deleted successfully!");
+            this.fetchUsers(); // Refresh the users list
+          } catch (error) {
+            console.error("Error deleting address:", error);
+            alert("Failed to delete address. Please try again.");
+          }
+        }
+      },
     },
   };
   </script>
@@ -212,54 +308,39 @@
   }
   
   .admin-users-container {
-    display: flex;
-    gap: 20px;
     max-width: 1200px;
     margin: 0 auto;
   }
   
-  .users-list {
-    flex: 1;
-    background-color: #ffffff; /* White */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .create-user-form,
-  .edit-user-form {
-    flex: 1;
-    background-color: #ffffff; /* White */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  h1,
-  h2 {
+  h1 {
+    text-align: center;
     color: #6b4423; /* Dark brown */
     margin-bottom: 20px;
   }
   
+  .users-list {
+    background-color: #ffffff; /* White */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
   .user-card {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #c49a6c; /* Mustard */
   }
   
-  .user-info {
-    flex: 1;
+  .user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 10px;
   }
   
   .username {
     font-weight: bold;
     color: #6b4423; /* Dark brown */
-  }
-  
-  .address {
-    color: #555; /* Dark gray */
   }
   
   .user-actions {
@@ -274,11 +355,49 @@
   }
   
   .edit-icon:hover {
-    color: #6b4423; /* Dark brown */
+    color: #6a8e4b; /* Mustard */
   }
   
   .delete-icon:hover {
-    color: #ff4d4d; /* Red */
+    color: #ab0000; /* Red */
+  }
+  
+  .addresses-dropdown {
+    padding: 10px;
+    background-color: #f9f9f9; /* Light gray */
+    border-radius: 5px;
+    margin-top: 10px;
+  }
+  
+  .address-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+  }
+  
+  .address {
+    color: #555; /* Dark gray */
+  }
+  
+  .address-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .create-user-form,
+  .edit-user-form,
+  .edit-address-form {
+    background-color: #ffffff; /* White */
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #6b4423; /* Dark brown */
+    margin-bottom: 20px;
   }
   
   .form-group {
