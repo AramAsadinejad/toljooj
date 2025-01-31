@@ -21,6 +21,7 @@
 
           <!-- Quantity Controls -->
           <div class="item-quantity">
+            <span class="quantity-display">{{ item.quantity }}</span>
             <button class="quantity-button" @click="reduceQuantity(index, itemIndex)">
               🗑️
             </button>
@@ -65,14 +66,37 @@ export default {
     },
 
     // Reduce the quantity of an item
-    reduceQuantity(restaurantIndex, itemIndex) {
+    async reduceQuantity(restaurantIndex, itemIndex) {
       const item = this.carts[restaurantIndex].restaurant.items[itemIndex];
-      if (item.quantity > 1) {
-        item.quantity -= 1; // Reduce quantity by 1
-      } else {
-        if (confirm("Remove this item from the cart?")) {
-          this.carts[restaurantIndex].restaurant.items.splice(itemIndex, 1); // Remove item if quantity is 1
-        }
+      const cart = this.carts[restaurantIndex];
+      try {
+        // Call the API to decrease the quantity
+        const response = await axios.post(
+          "http://localhost:3000/cart/decrease",
+          {
+            itemId: item.id, // Assuming the item has an `id` field
+            cartId: cart.id
+          },
+          {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+      
+          }
+        );
+        console.log(response);
+
+          if (item.quantity > 1) {
+            item.quantity -= 1; // Reduce quantity by 1
+          } else {
+            if (confirm("Remove this item from the cart?")) {
+              this.carts[restaurantIndex].restaurant.items.splice(itemIndex, 1); // Remove item if quantity is 1
+            }
+          }
+        
+      } catch (error) {
+        console.log("Error reducing quantity:", error);
+        alert("Failed to update quantity. Please try again.");
       }
     },
 
@@ -197,6 +221,11 @@ h2 {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.quantity-display {
+  font-size: 16px;
+  color: #6b4423; /* Dark brown */
 }
 
 .quantity-button {

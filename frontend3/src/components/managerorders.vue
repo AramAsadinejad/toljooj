@@ -1,292 +1,264 @@
 <template>
-    <div class="manager-orders-page">
-      <ManagerHeader />
-      <div class="orders-container">
-        <!-- Approved Orders -->
-        <div class="approved-orders">
-          <h2>Approved Orders</h2>
-          <div v-for="(order, index) in approvedOrders" :key="index" class="order-card faded">
-            <h3>{{ order.restaurantName }}</h3>
-            <p class="delivery-address">Deliver to: {{ order.deliveryAddress }}</p>
-  
-            <!-- Items in Order -->
-            <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
-              <img :src="item.image" :alt="item.name" class="item-image" />
-              <div class="item-details">
-                <p class="item-name">{{ item.name }}</p>
-                <p class="item-quantity">Quantity: {{ item.quantity }}</p>
-                <p class="item-price">Price: ${{ item.price.toFixed(2) }}</p>
-              </div>
-            </div>
-  
-            <!-- Order Summary -->
-            <div class="order-summary">
-              <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
-              <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div>
+  <div class="shopping-cart-page">
+    <UserHeaders />
+    <div class="shopping-cart-container">
+      <h1>Shopping Cart</h1>
+
+      <!-- Restaurant Carts -->
+      <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
+        <h2>{{ cart.restaurant.name }}</h2>
+
+        <!-- Items in Cart -->
+        <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
+          <!-- Food Image -->
+          <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
+
+          <!-- Item Details -->
+          <div class="item-details">
+            <p class="item-name">{{ item.name }}</p>
+            <p class="item-price">${{ item.price.toFixed(2) }}</p>
+          </div>
+
+          <!-- Quantity Controls -->
+          <div class="item-quantity">
+            <span class="quantity-display">{{ item.quantity }}</span>
+            <button class="quantity-button" @click="reduceQuantity(index, itemIndex)">
+              🗑️
+            </button>
           </div>
         </div>
-  
-        <!-- Pending Orders -->
-        <div class="pending-orders">
-          <h2>Pending Orders</h2>
-          <div v-for="(order, index) in pendingOrders" :key="index" class="order-card red">
-            <h3>{{ order.restaurantName }}</h3>
-            <p class="delivery-address">Deliver to: {{ order.deliveryAddress }}</p>
-  
-            <!-- Items in Order -->
-            <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
-              <img :src="item.image" :alt="item.name" class="item-image" />
-              <div class="item-details">
-                <p class="item-name">{{ item.name }}</p>
-                <p class="item-quantity">Quantity: {{ item.quantity }}</p>
-                <p class="item-price">Price: ${{ item.price.toFixed(2) }}</p>
-              </div>
-            </div>
-  
-            <!-- Order Summary -->
-            <div class="order-summary">
-              <!-- <p>Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p> -->
-              <p class="total-cost">Total: ${{ order.totalCost.toFixed(2) }}</p>
-            </div>
-  
-            <!-- Delivery Price Input and Action Buttons -->
-            <div class="order-actions">
-              <div class="delivery-price-input">
-                <label for="deliveryPrice">Delivery Fee:</label>
-                <input
-                  type="number"
-                  id="deliveryPrice"
-                  v-model="order.deliveryPrice"
-                  placeholder="Enter delivery fee"
-                />
-              </div>
-              <button @click="approveOrder(index)" class="approve-button">Approve</button>
-              <button @click="rejectOrder(index)" class="reject-button">Reject</button>
-            </div>
-          </div>
+
+        <!-- Total Price and Order Button -->
+        <div class="cart-summary">
+          <button class="order-button" @click="placeOrder(index)">Order Now</button>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import ManagerHeader from "@/components/ManagerHeader.vue";
+  </div>
+</template>
+
+<script>
+import UserHeaders from "./UserHeader.vue";
 import axios from "axios";
-  
-  export default {
-    name: "ManagerOrders",
-    components: {
-      ManagerHeader,
+
+export default {
+  name: "ShoppingCart",
+  components: {
+    UserHeaders,
+  },
+  data() {
+    return {
+      carts: [],
+      token: localStorage.getItem("token"),
+    };
+  },
+  created() {
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      this.fetchCarts();
+    }
+  },
+  methods: {
+    getImageUrl(imageUrl) {
+      return "http://localhost:3000" + imageUrl;
     },
-    data() {
-      return {
-        // Example data for approved orders
-        approvedOrders: [
-        ],
-  
-        // Example data for pending orders
-        pendingOrders: [
-          
-        ],
-      };
-    },
-    methods: {
-      // Approve an order
-      approveOrder(index) {
-        const order = this.pendingOrders[index];
-        if (!order.deliveryPrice || order.deliveryPrice <= 0) {
-          alert("Please enter a valid delivery price.");
-          return;
-        }
-  
-        // Update delivery fee and move to approved orders
-        order.deliveryFee = order.deliveryPrice;
-        this.approvedOrders.push(order);
-        this.pendingOrders.splice(index, 1);
-        alert("Order approved!");
-      },
-  
-      // Reject an order
-      rejectOrder(index) {
-        if (confirm("Are you sure you want to reject this order?")) {
-          this.pendingOrders.splice(index, 1);
-          alert("Order rejected.");
-        }
-      },
-      async fetcgManagerOrders(){
-        try {
-          const response = await axios.get(
-            "http:localhost:3000/get/manager/pending",  {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
+
+    // Reduce the quantity of an item
+    async reduceQuantity(restaurantIndex, itemIndex) {
+      const item = this.carts[restaurantIndex].restaurant.items[itemIndex];
+      try {
+        // Call the API to decrease the quantity
+        const response = await axios.post(
+          "http://localhost:3000/cart/decrease",
+          {
+            itemId: item.id, // Assuming the item has an `id` field
+            // cartId: 
+          },
+          {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
           }
-        })
-      
-          if (response.data && Array.isArray(response.data)) {
-            response.data.forEach((order) => {
-              if (order.status === false) {
-                this.pendingOrders.push(order); // Add to pending orders
-              } else {
-                this.approvedOrders.push(order); // Add to approved orders
-              }
-            });
+        );
+
+        if (response.data.success) {
+          if (item.quantity > 1) {
+            item.quantity -= 1; // Reduce quantity by 1
           } else {
-            console.error("Invalid response data format");
+            if (confirm("Remove this item from the cart?")) {
+              this.carts[restaurantIndex].restaurant.items.splice(itemIndex, 1); // Remove item if quantity is 1
+            }
           }
-        }catch(error){
-          console.error("Error fetching orders:", error);
-          alert("Failed to fetch orders.");
+        } else {
+          alert("Failed to update quantity. Please try again.");
         }
-          
-        
+      } catch (error) {
+        console.error("Error reducing quantity:", error);
+        alert("Failed to update quantity. Please try again.");
       }
     },
-  };
-  </script>
-  
-  <style scoped>
-  .manager-orders-page {
-    background-color: #f5f5f5; /* Light background */
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  .orders-container {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .approved-orders,
-  .pending-orders {
-    flex: 1;
-  }
-  
-  h2 {
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 20px;
-  }
-  
-  .order-card {
-    background-color: #ffffff; /* White */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-  }
-  
-  .faded {
-    opacity: 0.7; /* Faded effect for approved orders */
-  }
-  
-  .red {
-    border: 3px solid #6a8e4b; /* Red border for pending orders */
-  }
-  
-  h3 {
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 10px;
-  }
-  
-  .delivery-address {
-    color: #555; /* Dark gray */
-    margin-bottom: 15px;
-  }
-  
-  .order-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .item-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    margin-right: 15px;
-    object-fit: cover;
-  }
-  
-  .item-details {
-    flex: 1;
-  }
-  
-  .item-name {
-    font-weight: bold;
-    color: #6b4423; /* Dark brown */
-  }
-  
-  .item-quantity,
-  .item-price {
-    color: #555; /* Dark gray */
-  }
-  
-  .order-summary {
-    margin-top: 15px;
-    border-top: 1px solid #c49a6c; /* Mustard */
-    padding-top: 10px;
-  }
-  
-  .total-cost {
-    font-weight: bold;
-    color: #6b4423; /* Dark brown */
-  }
-  
-  .order-actions {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #f9f9f9; /* Light gray */
-    border-radius: 5px;
-  }
-  
-  .delivery-price-input {
-    margin-bottom: 10px;
-  }
-  
-  label {
-    display: block;
-    margin-bottom: 5px;
-    color: #6b4423; /* Dark brown */
-    font-weight: bold;
-  }
-  
-  input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #c49a6c; /* Mustard */
-    border-radius: 5px;
-    font-size: 14px;
-    outline: none;
-  }
-  
-  .approve-button {
-    background-color: #6a8e4b; /* Green */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-right: 10px;
-  }
-  
-  .approve-button:hover {
-    background-color: #024805; /* Darker green */
-  }
-  
-  .reject-button {
-    background-color: #ff4d4d; /* Red */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .reject-button:hover {
-    background-color: #cc0000; /* Darker red */
-  }
-  </style>
+
+    // Place an order for a specific restaurant's cart
+    async placeOrder(cartIndex) {
+      try {
+        const cart = this.carts[cartIndex];
+
+        // Prepare the payload
+        const payload = {
+          cartId: cart.cartId, // Send the cart ID
+          isPurchased: true, // Set is_purchased to true
+        };
+
+        // Send the POST request to the API
+        const response = await axios.post(
+          "http://localhost:3000/order/create/",
+          payload,
+          {
+            headers: {
+              Authorization: `token ${this.token}`, // Include the token in the headers
+            },
+          }
+        );
+
+        // Handle success
+        alert("Order placed successfully!");
+        console.log("Order response:", response.data);
+
+        // Remove the cart from the list after placing the order
+        this.carts.splice(cartIndex, 1);
+      } catch (error) {
+        console.error("Error placing order:", error);
+        alert("Failed to place order. Please try again.");
+      }
+    },
+
+    // Fetch carts from the backend
+    async fetchCarts() {
+      try {
+        const response = await axios.get("http://localhost:3000/cart/mine/", {
+          headers: {
+            Authorization: `token ${this.token}`,
+          },
+        });
+        this.carts = response.data;
+      } catch (error) {
+        console.error("Error fetching carts:", error);
+        alert("Failed to get carts. Please try again.");
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.shopping-cart-page {
+  background-color: #fff2d1; /* Light background */
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.shopping-cart-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #ffffff; /* White */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 20px;
+}
+
+.restaurant-cart {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #c49a6c; /* Mustard */
+  border-radius: 10px;
+  background-color: #f9f9f9; /* Light gray */
+}
+
+h2 {
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 15px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #c49a6c; /* Mustard */
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  margin-right: 15px;
+  object-fit: cover;
+  background-color: transparent;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: bold;
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 5px;
+}
+
+.item-price {
+  color: #555; /* Dark gray */
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-display {
+  font-size: 16px;
+  color: #6b4423; /* Dark brown */
+}
+
+.quantity-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #ff4d4d; /* Red */
+  transition: color 0.3s;
+}
+
+.quantity-button:hover {
+  color: #cc0000; /* Darker red */
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.order-button {
+  background-color: #c49a6c; /* Mustard */
+  color: #ffffff; /* White */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.order-button:hover {
+  background-color: #6b4423; /* Dark brown */
+}
+</style>
