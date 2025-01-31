@@ -14,12 +14,17 @@ export class CartController {
 
     @Get('mine')
     async getCart(@GetUser() user:UserInterface){
-        return this.cartService.getCart(user);
+        return this.cartService.getCarts(user);
     }
 
     @Post('add')
     async addToCart(@GetUser() user:UserInterface,@Body('itemId') itemId ,@Body('quantity') quantity){
         return this.cartService.addToCart(user,itemId,quantity);
+    }
+
+    @Post('decrease/')
+    async decreaseQuantity(@Body('itemId') itemId:number,@Body('cartId') cartId:number){
+        return this.cartService.decreaseQuantity(itemId,cartId);
     }
 
     

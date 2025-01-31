@@ -90,6 +90,11 @@ export class RestaurantController {
     async createOpenRest(@Body() body:CreateOpenRestDto){
       return this.restaurantService.addOpenRest(body);
     }
+
+    @Get('manager/all/')
+    async getManagerRestaurants(@GetUser() user:UserInterface){
+      return this.restaurantService.getManagerRestaurants(user.id);
+    }
   }
 
 
