@@ -32,9 +32,13 @@ export class OrderService {
                     ispurchased: row.ispurchased,
                     status: row.status,
                     isActive: row.cart_isactive,
-                    addressId: row.address_id,
+                    address:{
+                        addressId : row.address_id,
+                        addressValue:row.address_value,
+                        addressUserId : row.address_user_id
+                    },
                     restaurant: {
-                        id: row.restaurant_id,
+                        id: row.restaurant_id,  
                         name: row.restaurant_name,
                         imageUrl: row.restaurant_image_url,
                         managerId: row.restaurant_manager_id,
@@ -102,6 +106,12 @@ export class OrderService {
                     deliveryFee: row.delivery_fee,
                     ispurchased: row.ispurchased,
                     status: row.status,
+                    address:{
+                        addressId : row.address_id,
+                        addressValue:row.address_value,
+                        addressUserId : row.address_user_id,
+                        addressUsername:row.user_username
+                    },
                     restaurant: {
                         id: row.restaurant_id,
                         name: row.restaurant_name,
