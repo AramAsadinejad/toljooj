@@ -58,7 +58,7 @@ export class AddressService {
 
       async updateAddress(addressId:number,isDefault:boolean,value:string) : Promise<any>{
         const query = "select update_address($1,$2,$3)";
-        return this.databaseService.query(query,[addressId,isDefault,value])
+        return this.databaseService.query(query,[addressId,isDefault,value]);
 
       }
 }
