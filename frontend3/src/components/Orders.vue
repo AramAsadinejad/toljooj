@@ -6,7 +6,7 @@
         <div class="previous-orders">
           <h2>Previous Orders</h2>
           <div v-for="(order, index) in previousOrders" :key="index" class="order-card faded">
-            <h3>{{ order.restaurantName }}</h3>
+            <h3>{{ order.restaurant.name }}</h3>
             <p class="delivery-address">Delivered to: {{ order.deliveryAddress }}</p>
   
             <!-- Items in Order -->
@@ -30,14 +30,14 @@
         <div class="upcoming-orders">
           <h2>Upcoming Orders</h2>
           <div v-for="(order, index) in upcomingOrders" :key="index" class="order-card red">
-            <h3 class="upcoming-text">{{ order.restaurantName }}</h3>
-            <p class="delivery-address-upcoming">Delivering to: {{ order.deliveryAddress }}</p>
+            <h3 class="upcoming-text">{{ order.restaurant.name }}</h3>
+            <p class="delivery-address-upcoming">Delivering to: {{ order.addressId }}</p>
   
             <!-- Items in Order -->
             <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
-              <img :src="item.photo" :alt="item.name" class="item-image" />
+              <img :src="item.itemPhotoUrl" :alt="item.name" class="item-image" />
               <div class="item-details ">
-                <p class="item-name ">{{ item.name }}</p>
+                <p class="item-name ">{{ item.itemTitle }}</p>
                 <p class="item-quantity ">Quantity: {{ item.quantity }}</p>
               </div>
             </div>
@@ -70,9 +70,6 @@
       return {
         // Example data for previous orders
         previousOrders: [
-          {
-            totalCost: 0
-          }
         ],
         token: localStorage.getItem("token"),
         // Example data for upcoming orders
@@ -105,6 +102,8 @@
               this.upcomingOrders.push(order);
             }
           })
+          console.log(this.previousOrders);
+          console.log(this.upcomingOrders);
           
         } catch (error) {
           console.error("Error fetching orders:", error);
