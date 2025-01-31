@@ -90,7 +90,7 @@
         <form @submit.prevent="submitEditForm">
           <div class="form-group">
             <label for="edit-name">Restaurant Name</label>
-            <input type="text" id="edit-name" v-model="editRestaurant.name" required />
+            <input type="text" id="edit-name" v-model="editRestaurant.restaurant_name" required />
           </div>
           <div class="form-group">
             <label for="edit-image">Restaurant Image URL</label>
@@ -108,18 +108,18 @@
           </div>
           <div class="form-group">
             <label for="edit-minPurchase">Minimum Purchase</label>
-            <input type="number" id="edit-minPurchase" v-model="editRestaurant.minPurchase" required />
+            <input type="number" id="edit-minPurchase" v-model="editRestaurant.min_purchase" required />
           </div>
           <div class="form-group">
             <label for="edit-deliveryRadius">Delivery Radius (km)</label>
-            <input type="number" id="edit-deliveryRadius" v-model="editRestaurant.deliveryRadius" required />
+            <input type="number" id="edit-deliveryRadius" v-model="editRestaurant.delivery_radius" required />
           </div>
 
           <!-- Opening Hours Section -->
           <div class="opening-hours-section">
             <div class="opening-hours-header">
               <h3>Opening Hours</h3>
-              <button type="button" class="add-button" @click="addOpeningHour">Add Day</button>
+              <button type="button" class="add-button" @click="addEditOpeningHour">Add Day</button>
             </div>
             <div v-for="(day, index) in editRestaurant.openingHours" :key="index" class="opening-hours-item">
               <select v-model="day.day" required>
@@ -170,12 +170,12 @@ export default {
       },
       editRestaurant: {
         id: null,
-        name: "",
-        image: "",
+        restaurant_name: "",
+        image_url: null,
         address: "",
-        minPurchase: 0,
-        deliveryRadius: 0,
-        openingHours: [], // Array to store opening hours
+        min_purchase: 0,
+        delivery_radius: 0,
+        openingHours: [],
       },
       restaurants: [
       ],
@@ -275,7 +275,8 @@ export default {
           }
         );
 
-        const restaurantId = response.data.id;
+        const restaurantId = response.data.restaurant_id;
+        console.log(response.data);
         alert("Restaurant added successfully!");
 
         await this.submitOpeningHours(restaurantId);
@@ -301,17 +302,21 @@ export default {
 
     async submitOpeningHours(restaurantId) {
       try {
-        const openingHoursPayload = this.newRestaurant.openingHours.map((hour) => ({
-          day: hour.day,
-          open: hour.open,
-          close: hour.close,
-        }));
+        
+        const openHours = this.newRestaurant.openingHours.map((hour) => {
+        const dayOfWeek = this.getDayOfWeekNumber(hour.day); // Convert day to number
+        return {
+          startHour: hour.open,
+          endHour: hour.close,
+          dayOfWeek: dayOfWeek,
+        };
+      });
 
         await axios.post(
           `http://localhost:3000/restaurant/create/open/`,
           {
-            restaurant_id: restaurantId,
-            opening_hours: openingHoursPayload,
+            restId: restaurantId, // Restaurant ID
+            openHours: openHours,
           },
           {
             headers: {
@@ -330,16 +335,16 @@ export default {
     async submitEditForm() {
       try {
         const formData = new FormData();
-        formData.append("name", this.editRestaurant.name);
-        formData.append("min_purchase", this.editRestaurant.minPurchase);
-        formData.append("delivery_radius", this.editRestaurant.deliveryRadius);
+        formData.append("name", this.editRestaurant.restaurant_name);
+        formData.append("min_purchase", this.editRestaurant.min_purchase);
+        formData.append("delivery_radius", this.editRestaurant.delivery_radius);
         formData.append("address", this.editRestaurant.address);
-        if (this.editRestaurant.image) {
-          formData.append("image", this.editRestaurant.image);
+        if (this.editRestaurant.image_url) {
+          formData.append("image", this.editRestaurant.image_url);
         }
 
         const response = await axios.put(
-          `http://localhost:3000/restaurant/update/${this.editRestaurant.id}/`,
+          `http://localhost:3000/restaurant/update/${this.editRestaurant.restaurant_id}/`,
           formData,
           {
             headers: {
@@ -351,7 +356,7 @@ export default {
         console.log(response);
         alert("Restaurant updated successfully!");
 
-        await this.updateOpeningHours(this.editRestaurant.id);
+        await this.updateOpeningHours(this.editRestaurant.restaurant_id);
 
         const index = this.restaurants.findIndex((r) => r.id === this.editRestaurant.id);
         if (index !== -1) {
@@ -367,16 +372,20 @@ export default {
 
     async updateOpeningHours(restaurantId) {
       try {
-        const openingHoursPayload = this.editRestaurant.openingHours.map((hour) => ({
-          day: hour.day,
-          open: hour.open,
-          close: hour.close,
-        }));
+        const openHours = this.editRestaurant.openingHours.map((hour) => {
+        const dayOfWeek = this.getDayOfWeekNumber(hour.day); // Convert day to number
+        return {
+          startHour: hour.open,
+          endHour: hour.close,
+          dayOfWeek: dayOfWeek,
+        };
+      });
 
-        await axios.put(
-          `http://localhost:3000/restaurant/update/open/${restaurantId}/`,
+        await axios.post(
+          `http://localhost:3000/restaurant/create/open/`,
           {
-            opening_hours: openingHoursPayload,
+            restId: restaurantId, // Restaurant ID
+            openHours: openHours,
           },
           {
             headers: {
@@ -395,7 +404,7 @@ export default {
     async openEditForm(restaurant) {
       try {
         const response = await axios.get(
-          `http://localhost:3000/restaurant/open/${restaurant.id}/`,
+          `http://localhost:3000/restaurant/open/${restaurant.restaurant_id}/`,
           {
             headers: {
               Authorization: `token ${this.token}`,
@@ -414,6 +423,11 @@ export default {
         alert("Failed to fetch opening hours. Please try again.");
       }
     },
+
+    getDayOfWeekNumber(day) {
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    return days.indexOf(day) + 1; // Monday = 1, Tuesday = 2, etc.
+  },
 
 
   },

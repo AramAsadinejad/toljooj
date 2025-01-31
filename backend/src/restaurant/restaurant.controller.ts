@@ -76,7 +76,8 @@ export class RestaurantController {
         }),
       }),
     )
-    async upadateRestaurantDetails(body:RestaurantUpdateInterface,
+    async upadateRestaurantDetails(
+      @Body() body:RestaurantUpdateInterface,
       @Param('id') id:number,
       @UploadedFile() image,
     ){
