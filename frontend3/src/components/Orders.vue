@@ -7,13 +7,13 @@
           <h2>Previous Orders</h2>
           <div v-for="(order, index) in previousOrders" :key="index" class="order-card faded">
             <h3>{{ order.restaurant.name }}</h3>
-            <p class="delivery-address">Delivered to: {{ order.deliveryAddress }}</p>
+            <p class="delivery-address">Delivered to: {{ order.addressId }}</p>
   
             <!-- Items in Order -->
             <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item faded">
-              <img :src="item.photo" :alt="item.name" class="item-image faded" />
+              <img :src="getImageUrl(item.itemPhotoUrl)" :alt="item.name" class="item-image faded" />
               <div class="item-details faded">
-                <p class="item-name faded">{{ item.name }}</p>
+                <p class="item-name faded">{{ item.itemTitle }}</p>
                 <p class="item-quantity faded">Quantity: {{ item.quantity }}</p>
               </div>
             </div>
@@ -35,7 +35,7 @@
   
             <!-- Items in Order -->
             <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
-              <img :src="item.itemPhotoUrl" :alt="item.name" class="item-image" />
+              <img :src="getImageUrl(item.itemPhotoUrl)" :alt="item.name" class="item-image" />
               <div class="item-details ">
                 <p class="item-name ">{{ item.itemTitle }}</p>
                 <p class="item-quantity ">Quantity: {{ item.quantity }}</p>
@@ -87,6 +87,9 @@
     }
     },
     methods:{
+      getImageUrl(imageUrl){
+        return "http://localhost:3000" + imageUrl;
+      },
       async fetchOrders(){
           try {
           const response = await axios.get("http://localhost:3000/order/mine/", {

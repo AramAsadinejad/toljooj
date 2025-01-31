@@ -1,233 +1,235 @@
 <template>
-    <div class="shopping-cart-page">
-      <UserHeaders />
-      <div class="shopping-cart-container">
-        <h1>Shopping Cart</h1>
-  
-        <!-- Restaurant Carts -->
-        <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
-          <h2>{{ cart.restaurant.name }}</h2>
-  
-          <!-- Items in Cart -->
-          <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
-            <!-- Food Image -->
-            <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
-  
-            <!-- Item Details -->
-            <div class="item-details">
-              <p class="item-name">{{ item.name }}</p>
-              <p class="item-price">${{ item.price.toFixed(2) }}</p>
-            </div>
-  
-            <!-- Quantity Controls -->
-            <div class="item-quantity">
-              <button class="quantity-button" @click="reduceQuantity(index, itemIndex)">
-                🗑️
-              </button>
-              <!-- <span class="quantity">{{ item.quantity }}</span> -->
-            </div>
+  <div class="shopping-cart-page">
+    <UserHeaders />
+    <div class="shopping-cart-container">
+      <h1>Shopping Cart</h1>
+
+      <!-- Restaurant Carts -->
+      <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
+        <h2>{{ cart.restaurant.name }}</h2>
+
+        <!-- Items in Cart -->
+        <div v-for="(item, itemIndex) in cart.restaurant.items" :key="itemIndex" class="cart-item">
+          <!-- Food Image -->
+          <img :src="getImageUrl(item.photoUrl)" :alt="item.name" class="item-image" />
+
+          <!-- Item Details -->
+          <div class="item-details">
+            <p class="item-name">{{ item.name }}</p>
+            <p class="item-price">${{ item.price.toFixed(2) }}</p>
           </div>
-  
-          <!-- Total Price and Order Button -->
-          <div class="cart-summary">
-            <!-- <p class="total-price">Total: ${{ cart.totalPrice.toFixed(2) }}</p> -->
-            <button class="order-button" @click="placeOrder(index)">Order Now</button>
+
+          <!-- Quantity Controls -->
+          <div class="item-quantity">
+            <button class="quantity-button" @click="reduceQuantity(index, itemIndex)">
+              🗑️
+            </button>
           </div>
+        </div>
+
+        <!-- Total Price and Order Button -->
+        <div class="cart-summary">
+          <button class="order-button" @click="placeOrder(index)">Order Now</button>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  import UserHeaders from "./UserHeader.vue";
-  import axios from "axios";
-  export default {
-    name: "ShoppingCart",
-    components: {
-      UserHeaders,
+  </div>
+</template>
+
+<script>
+import UserHeaders from "./UserHeader.vue";
+import axios from "axios";
+
+export default {
+  name: "ShoppingCart",
+  components: {
+    UserHeaders,
+  },
+  data() {
+    return {
+      carts: [],
+      token: localStorage.getItem("token"),
+    };
+  },
+  created() {
+    if (!this.token) {
+      alert("You must be logged in to view this page.");
+      this.$router.push("/login"); // Redirect to login page
+    } else {
+      this.fetchCarts();
+    }
+  },
+  methods: {
+    getImageUrl(imageUrl) {
+      return "http://localhost:3000" + imageUrl;
     },
-    data() {
-      return {
-        // Example data for restaurant carts
-        carts:[],
-        token : localStorage.getItem("token")
-      };
-    },
-    created() {
-      console.log(this.token);
-      if (!this.token) {
-        alert("You must be logged in to view this page.");
-        this.$router.push("/login"); // Redirect to login page
-      }else{
-        this.fetchCarts();
+
+    // Reduce the quantity of an item
+    reduceQuantity(restaurantIndex, itemIndex) {
+      const item = this.carts[restaurantIndex].restaurant.items[itemIndex];
+      if (item.quantity > 1) {
+        item.quantity -= 1; // Reduce quantity by 1
+      } else {
+        if (confirm("Remove this item from the cart?")) {
+          this.carts[restaurantIndex].restaurant.items.splice(itemIndex, 1); // Remove item if quantity is 1
+        }
       }
     },
-    methods: {
-      getImageUrl(imageUrl){
-        return "http://localhost:3000" + imageUrl;
-      },
-      // Reduce the quantity of an item
-      reduceQuantity(restaurantIndex, itemIndex) {
-        const item = this.restaurantCarts[restaurantIndex].items[itemIndex];
-        if (item.quantity > 1) {
-          item.quantity -= 1; // Reduce quantity by 1
-        } else {
-          if (confirm("Remove this item from the cart?")) {
-            this.restaurantCarts[restaurantIndex].items.splice(itemIndex, 1); // Remove item if quantity is 1
-          }
-        }
-        this.calculateTotalPrice(restaurantIndex); // Recalculate total price
-      },
-  
-      // Place an order for a specific restaurant's cart
-      placeOrder(restaurantIndex) {
-        const restaurantName = this.restaurantCarts[restaurantIndex].restaurantName;
-        alert(`Order placed for ${restaurantName}!`);
-        this.restaurantCarts.splice(restaurantIndex, 1); // Remove the cart after ordering
-      },
-  
-      // Calculate the total price for a restaurant's cart
-      calculateTotalPrice(restaurantIndex) {
-        const cart = this.restaurantCarts[restaurantIndex];
-        cart.totalPrice = cart.items.reduce(
-          (total, item) => total + item.price * item.quantity,
-          0
-        );
-      },
 
-      async fetchCarts(){
-        try {
-          const response = await axios.get(
-          "http://localhost:3000/cart/mine/",
+    // Place an order for a specific restaurant's cart
+    async placeOrder(cartIndex) {
+      try {
+        const cart = this.carts[cartIndex];
+
+        // Prepare the payload
+        const payload = {
+          cartId: cart.cartId, // Send the cart ID
+          isPurchased: true, // Set is_purchased to true
+        };
+
+        // Send the POST request to the API
+        const response = await axios.post(
+          "http://localhost:3000/order/create/",
+          payload,
           {
             headers: {
-              "Authorization":`token ${this.token}`
+              Authorization: `token ${this.token}`, // Include the token in the headers
             },
           }
         );
-        console.log(1);
-        this.carts=response.data;
-        } catch (error) {
-        console.error("Error Fetching carts:", error);
-        alert("Failed to get carts. Please try again.");
-      }
+
+        // Handle success
+        alert("Order placed successfully!");
+        console.log("Order response:", response.data);
+
+        // Remove the cart from the list after placing the order
+        this.carts.splice(cartIndex, 1);
+      } catch (error) {
+        console.error("Error placing order:", error);
+        alert("Failed to place order. Please try again.");
       }
     },
-  };
-  </script>
-  
-  <style scoped>
-  .shopping-cart-page {
-    background-color: #FFF2D1; /* Light background */
-    min-height: 100vh;
-    padding: 20px;
-  }
-  
-  .shopping-cart-container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #ffffff; /* White */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  h1 {
-    text-align: center;
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 20px;
-  }
-  
-  .restaurant-cart {
-    margin-bottom: 30px;
-    padding: 15px;
-    border: 1px solid #c49a6c; /* Mustard */
-    border-radius: 10px;
-    background-color: #f9f9f9; /* Light gray */
-  }
-  
-  h2 {
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 15px;
-  }
-  
-  .cart-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #c49a6c; /* Mustard */
-  }
-  
-  .item-image {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    margin-right: 15px;
-    object-fit: cover;
-    background-color: transparent;
-  }
-  
-  .item-details {
-    flex: 1;
-  }
-  
-  .item-name {
-    font-weight: bold;
-    color: #6b4423; /* Dark brown */
-    margin-bottom: 5px;
-  }
-  
-  .item-price {
-    color: #555; /* Dark gray */
-  }
-  
-  .item-quantity {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .quantity-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #ff4d4d; /* Red */
-    transition: color 0.3s;
-  }
-  
-  .quantity-button:hover {
-    color: #cc0000; /* Darker red */
-  }
-  
-  .quantity {
-    font-size: 16px;
-    color: #6b4423; /* Dark brown */
-  }
-  
-  .cart-summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-  }
-  
-  .total-price {
-    font-weight: bold;
-    color: #6b4423; /* Dark brown */
-  }
-  
-  .order-button {
-    background-color: #c49a6c; /* Mustard */
-    color: #ffffff; /* White */
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .order-button:hover {
-    background-color: #6b4423; /* Dark brown */
-  }
-  </style>
+
+    // Fetch carts from the backend
+    async fetchCarts() {
+      try {
+        const response = await axios.get("http://localhost:3000/cart/mine/", {
+          headers: {
+            Authorization: `token ${this.token}`,
+          },
+        });
+        this.carts = response.data;
+      } catch (error) {
+        console.error("Error fetching carts:", error);
+        alert("Failed to get carts. Please try again.");
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.shopping-cart-page {
+  background-color: #fff2d1; /* Light background */
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.shopping-cart-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #ffffff; /* White */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 20px;
+}
+
+.restaurant-cart {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #c49a6c; /* Mustard */
+  border-radius: 10px;
+  background-color: #f9f9f9; /* Light gray */
+}
+
+h2 {
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 15px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #c49a6c; /* Mustard */
+}
+
+.item-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  margin-right: 15px;
+  object-fit: cover;
+  background-color: transparent;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-weight: bold;
+  color: #6b4423; /* Dark brown */
+  margin-bottom: 5px;
+}
+
+.item-price {
+  color: #555; /* Dark gray */
+}
+
+.item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #ff4d4d; /* Red */
+  transition: color 0.3s;
+}
+
+.quantity-button:hover {
+  color: #cc0000; /* Darker red */
+}
+
+.cart-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.order-button {
+  background-color: #c49a6c; /* Mustard */
+  color: #ffffff; /* White */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.order-button:hover {
+  background-color: #6b4423; /* Dark brown */
+}
+</style>
