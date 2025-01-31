@@ -34,13 +34,14 @@ export class ItemController {
     async createItem(
         @UploadedFile() image,
         @Body() itemData: ItemCreationInterface,
-        @Body('categoryIds') categoryIds : number[]
+        @Body('categoryIds') categoryIds : string
     ){
         const imageUrl = image ? `/uploads/items/${image.filename}` : DEFAULT_ITEM_IMAGE_URL;
         console.log(typeof categoryIds);
+        let categoryIdsArray = [];
         if (typeof categoryIds === 'string')
-           categoryIds = JSON.parse(categoryIds);
-        return this.itemService.create(itemData,categoryIds,imageUrl);
+           categoryIdsArray = categoryIds.split(",").map(Number);
+        return this.itemService.create(itemData,categoryIdsArray,imageUrl);
     }
 
     @Get('category/:id/')
