@@ -17,4 +17,14 @@ export class ItemService {
         const query = "select * from get_items_by_category($1)";
         return this.databaseService.query(query,[id]);
     }
+
+    async update(id:number,itemData:ItemCreationInterface,imageURl:string,categoryIds: number[]){
+        const query = "select * from update_item($1,$2,$3,$4,$5)";
+        return this.databaseService.query(query,[id,itemData.price,itemData.title,imageURl,categoryIds]);
+    }
+
+    async deleteItem(id:number){
+        const query = "select * from delete_item($1)";
+        return this.databaseService.query(query,[id]);
+    }
 }
