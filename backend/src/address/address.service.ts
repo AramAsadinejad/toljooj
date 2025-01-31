@@ -44,4 +44,21 @@ export class AddressService {
         const result = await this.databaseService.query(query, [user.id]);
         return result[0];
       }
+
+      async deleteAddress(addressId: number) {
+        try {
+          return this.databaseService.query(
+            'SELECT delete_address_by_id($1)',
+            [addressId]
+          );
+        } catch (error) {
+          throw new BadRequestException('Error deleting the address: ' + error.message);
+        }
+      }
+
+      async updateAddress(addressId:number,isDefault:boolean,value:string) : Promise<any>{
+        const query = "select update_address($1,$2,$3)";
+        return this.databaseService.query(query,[addressId,isDefault,value])
+
+      }
 }

@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, UseGuards } from '@nestjs/common';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 import { GetUser } from 'src/user/user.decorator';
-import { UserInterface } from 'src/user/user.interface';
+import { UserInterface, UserType } from 'src/user/user.interface';
 import { AddressService } from './address.service';
 import { AddressCreationOrUpdateInterface, AddressInterface } from './address.interface';
 import { CatchClause } from './../../../frontend3/node_modules/@types/estree/index.d';
+import { RolesGuard } from 'src/token/roles.guard';
+import { Roles } from 'src/user/user.constancts';
 
 @Controller('address')
 export class AddressController {
@@ -42,6 +44,22 @@ export class AddressController {
     ): Promise<{ message: string }> {
       await this.addressService.setDefaultAddress(addressId, isDefault);
       return { message: `Address ${addressId} updated successfully` };
+    }
+
+    @Delete('delete/:id')
+    @Roles(UserType.User,UserType.Admin)
+    @UseGuards(TokenAuthGuard,RolesGuard)
+    async delete(
+        @Param('id', ParseIntPipe) addressId: number,
+      ){
+          return this.addressService.deleteAddress(addressId);
+      }
+
+    @Put('update/:id')
+    @Roles(UserType.User,UserType.Admin)
+    @UseGuards(TokenAuthGuard,RolesGuard)
+    async update(@Param('id', ParseIntPipe) addressId: number,@Body('isDefault') isDefault:boolean,@Body('value') value:string){
+        return this.addressService.updateAddress(addressId,isDefault,value);
     }
 
 }
