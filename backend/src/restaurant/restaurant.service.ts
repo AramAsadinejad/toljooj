@@ -11,8 +11,9 @@ export class RestaurantService {
         private databaseService:DatabaseService
     ) {}
 
-    async getAllRestaurants(){
-        return this.databaseService.query("select * from get_restaurant_details()");
+    async getAllRestaurants(page: number = 1, limit: number = 5){
+      const offset = (page - 1) * limit;
+        return this.databaseService.query("select * from get_restaurant_details($1,$2)",[limit, offset]);
     }
 
 

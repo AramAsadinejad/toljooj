@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -27,7 +27,12 @@ export class RestaurantController {
 
     @Get("all")
     @UseGuards(TokenAuthGuard)
-    async getAllRestaurants(){
+    async getAllRestaurants(
+      @Query('page') page?: number,
+      @Query('limit') limit?: number
+    ){
+        const pageNumber = Number(page) || 1;
+        const pageSize = Number(limit) || 5;
         return this.restaurantService.getAllRestaurants()
     }
 
