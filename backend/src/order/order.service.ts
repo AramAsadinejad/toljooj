@@ -105,7 +105,7 @@ export class OrderService {
                     cartId: row.cart_id,
                     deliveryFee: row.delivery_fee,
                     ispurchased: row.ispurchased,
-                    status: row.status,
+                    status: row.order_status,
                     address:{
                         addressId : row.address_id,
                         addressValue:row.address_value,
