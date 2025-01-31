@@ -3,6 +3,7 @@ import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcrypt';
 import { LoginInterface, RegisterInterface, TokenInterface, UserInterface } from './user.interface';
 import { TokenService } from 'src/token/token.service';
+import { UserDTO } from './user.dto';
 @Injectable()
 export class UserService {
     private readonly logger = new Logger(UserService.name);
@@ -72,8 +73,30 @@ export class UserService {
     }
 
     async getAllUsers(){
-      const query = "select * from get_all_users()";
-      return this.databaseService.query(query);
+      const query = "select * from get_users_with_addresses()";
+      const rows = await this.databaseService.query<any>(query);
+      const userMap = new Map<number, UserDTO>();
+
+      for (const row of rows) {
+        if (!userMap.has(row.user_id)) {
+          userMap.set(row.user_id, {
+            userId: row.user_id,
+            username: row.username,
+            email: row.email,
+            addresses: [],
+          });
+        }
+  
+        if (row.address_id) {
+          userMap.get(row.user_id).addresses.push({
+            addressId: row.address_id,
+            isDefault: row.isdefault, // Note: PostgreSQL returns lowercase for columns
+            value: row.value,
+          });
+        }
+      }
+  
+      return Array.from(userMap.values());
     }
 
     
