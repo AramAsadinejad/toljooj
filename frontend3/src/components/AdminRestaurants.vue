@@ -88,15 +88,15 @@
           </div>
           <div class="form-group">
             <label for="edit-address">Address</label>
-            <input type="text" id="edit-address" v-model="editRestaurant.address" required />
+            <input type="text" id="edit-address" v-model="editRestaurant.restaurant_address" required />
           </div>
           <div class="form-group">
             <label for="edit-minPurchase">Minimum Purchase</label>
-            <input type="number" id="edit-minPurchase" v-model="editRestaurant.min_purchase" required />
+            <input type="number" id="edit-minPurchase" v-model="editRestaurant.restaurant_min_purchase" required />
           </div>
           <div class="form-group">
             <label for="edit-deliveryRadius">Delivery Radius (km)</label>
-            <input type="number" id="edit-deliveryRadius" v-model="editRestaurant.delivery_radius" required />
+            <input type="number" id="edit-deliveryRadius" v-model="editRestaurant.restaurant_delivery_radius" required />
           </div>
 
           <!-- Opening Hours Section -->
@@ -135,8 +135,8 @@
           <div class="restaurant-details">
             <h2>{{ restaurant.restaurant_name }}</h2>
             <p>{{ restaurant.address }}</p>
-            <p>Min Purchase: ${{ restaurant.min_purchase }}</p>
-            <p>Delivery Radius: {{ restaurant.delivery_radius }} km</p>
+            <p>Min Purchase: ${{ restaurant.restaurant_min_purchase }}</p>
+            <p>Delivery Radius: {{ restaurant.restaurant_delivery_radius }} km</p>
             <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
             <button class="order-button" @click="$router.push(`/adminitems/${restaurant.restaurant_id}`)">View Menu</button>
           </div>
@@ -148,13 +148,7 @@
         <button class="paginator-button" @click="previousPage" :disabled="page === 1">Previous</button>
         <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
         <button class="paginator-button" @click="nextPage" :disabled="page === totalPages">Next</button>
-
-        
       </div>
-
-      
-
-      
     </div>
   </div>
 </template>
@@ -239,9 +233,6 @@ export default {
       this.editRestaurant.openingHours.splice(index, 1);
     },
 
-    // Open the edit form and pre-fill it with the restaurant's details
-    
-
     // Close the edit form
     closeEditForm() {
       this.showEditRestaurantForm = false; // Hide the edit form
@@ -267,8 +258,22 @@ export default {
           },
         });
         
-        this.restaurants = response.data;
-        console.log(response.data);
+        this.restaurants = await Promise.all(response.data.map(async (restaurant) => {
+          const openingHoursResponse = await axios.get(
+            `http://localhost:3000/restaurant/open/${restaurant.restaurant_id}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+          );
+          restaurant.openingHours = openingHoursResponse.data.map(hour => ({
+            day: this.getDayOfWeekName(hour.week_day),
+            open: hour.start_hour,
+            close: hour.end_hour
+          }));
+          return restaurant;
+        }));
         console.log(this.restaurants); 
       } catch (error) {
         console.error("Error fetching restaurants:", error);
@@ -441,7 +446,11 @@ export default {
 
         this.editRestaurant = {
           ...restaurant,
-          openingHours: response.data.opening_hours || [],
+          openingHours: response.data.map(hour => ({
+            day: this.getDayOfWeekName(hour.week_day),
+            open: hour.start_hour,
+            close: hour.end_hour
+          })),
         };
 
         this.showEditRestaurantForm = true;
@@ -456,6 +465,10 @@ export default {
     return days.indexOf(day) + 1; // Monday = 1, Tuesday = 2, etc.
   },
 
+  getDayOfWeekName(dayNumber) {
+    const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    return days[dayNumber - 1]; // dayNumber starts from 1
+  }
 
   },
 };

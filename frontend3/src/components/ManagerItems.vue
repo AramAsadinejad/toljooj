@@ -10,7 +10,7 @@
         <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
         <div class="opening-hours">
           <h3>Opening Hours</h3>
-          <div v-for="(hour, index) in openingHours" :key="index" class="opening-hour-item">
+          <div v-for="(hour, index) in restaurant.openingHours" :key="index" class="opening-hour-item">
             <p>{{ hour.day }}: {{ hour.open }} - {{ hour.close }}</p>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default {
     } else {
       this.restaurant.id = this.$route.params.restaurant_id;
       this.fetchRestaurantDetails();
-      this.fetchOpeningHours(this.restaurantId);
+      
     }
   },
   methods: {
@@ -235,6 +235,7 @@ export default {
           }
         );
         this.restaurant = response.data;
+        this.fetchOpeningHours();
         if (this.restaurant.categories.length > 0) {
           this.activeCategory = this.restaurant.categories[0];
         }
@@ -243,22 +244,32 @@ export default {
         alert("Failed to fetch restaurant details.");
       }
     },
-    async fetchOpeningHours(restaurantId) {
-    try {
-      const response = await axios.get(
-        `http://localhost:3000/restaurant/open/${restaurantId}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.token}`,
-          },
-        }
-      );
-      this.openingHours = response.data.opening_hours; // Store opening hours
-    } catch (error) {
-      console.error("Error fetching opening hours:", error);
-      alert("Failed to fetch opening hours. Please try again.");
-    }
-  },
+    async fetchOpeningHours() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/restaurant/open/${this.restaurant.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          }
+        );
+        // Map the response data to the openingHours format
+        this.restaurant.openingHours = response.data.map((hour) => ({
+          day: this.getDayOfWeekName(hour.week_day),
+          open: hour.start_hour,
+          close: hour.end_hour,
+        }));
+        console.log("Opening Hours:", this.restaurant.openingHours); // Debugging
+      } catch (error) {
+        console.error("Error fetching opening hours:", error);
+        alert("Failed to fetch opening hours. Please try again.");
+      }
+    },
+    getDayOfWeekName(dayNumber) {
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      return days[dayNumber - 1]; // dayNumber starts from 1
+    },
     setActiveCategory(category) {
       this.activeCategory = category;
     },

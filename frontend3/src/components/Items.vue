@@ -8,6 +8,12 @@
         <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.address }}</p>
         <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
+        <div class="opening-hours">
+          <h3>Opening Hours</h3>
+          <div v-for="(hour, index) in restaurant.openingHours" :key="index" class="opening-hour-item">
+            <p>{{ hour.day }}: {{ hour.open }} - {{ hour.close }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -101,7 +107,7 @@ export default {
         // Set restaurant details
         this.restaurant = response.data;
         this.addQuantityToItems(this.restaurant.categories);
-
+        this.fetchOpeningHours();
         // Set the first category as active by default
         if (this.restaurant.categories.length > 0) {
           this.activeCategory = this.restaurant.categories[0];
@@ -110,6 +116,32 @@ export default {
         console.error("Error fetching restaurant details:", error);
         alert("Failed to fetch restaurant details.");
       }
+    },
+    async fetchOpeningHours() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/restaurant/open/${this.restaurant.id}/`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          }
+        );
+        // Map the response data to the openingHours format
+        this.restaurant.openingHours = response.data.map((hour) => ({
+          day: this.getDayOfWeekName(hour.week_day),
+          open: hour.start_hour,
+          close: hour.end_hour,
+        }));
+        console.log("Opening Hours:", this.restaurant.openingHours); // Debugging
+      } catch (error) {
+        console.error("Error fetching opening hours:", error);
+        alert("Failed to fetch opening hours. Please try again.");
+      }
+    },
+    getDayOfWeekName(dayNumber) {
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      return days[dayNumber - 1]; // dayNumber starts from 1
     },
 
     // Add quantity property to items

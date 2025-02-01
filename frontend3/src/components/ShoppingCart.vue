@@ -145,7 +145,9 @@ export default {
             Authorization: `token ${this.token}`,
           },
         });
+        
         this.carts = response.data;
+        console.log(this.carts);
       } catch (error) {
         console.error("Error fetching carts:", error);
         alert("Failed to get carts. Please try again.");
