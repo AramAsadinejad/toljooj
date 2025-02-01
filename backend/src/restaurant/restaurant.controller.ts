@@ -28,10 +28,10 @@ export class RestaurantController {
     @Get("all")
     @UseGuards(TokenAuthGuard)
     async getAllRestaurants(
-      // @Query('page',ParseIntPipe) page?: number,
-      // @Query('limit',ParseIntPipe) limit?: number
+      @Query('page',ParseIntPipe) page?: number,
+      @Query('limit',ParseIntPipe) limit?: number
     ){
-        return this.restaurantService.getAllRestaurants();//page,limit
+        return this.restaurantService.getAllRestaurants(page,limit);//page,limit
     }
 
 

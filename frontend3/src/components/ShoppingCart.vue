@@ -6,7 +6,7 @@
 
       <!-- Restaurant Carts -->
       <div v-for="(cart, index) in carts" :key="index" class="restaurant-cart">
-        <div v-if="cart.isActive">
+        <div v-if="cart.isActive && cart.restaurant.items.length > 0">
         <h2>{{ cart.restaurant.name }}</h2>
 
         <!-- Items in Cart -->

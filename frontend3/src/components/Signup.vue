@@ -78,7 +78,10 @@
             axios.post('http://localhost:3000/user/login/', {
               username: this.formData.username,
               password: this.formData.password,
-            }).then(res=>{console.log(res.data);})
+            }).then(res=>{
+              console.log(res.data);
+              this.$router.push('/restaurants');
+            })
             .catch(err=>{
               console.log(err);
               
