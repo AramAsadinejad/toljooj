@@ -204,7 +204,7 @@ export default {
     nextPage() {
       
       this.page++;
-      this.fetchRestaurants();
+      this.getRestaurants();
     
   },
   previousPage() {

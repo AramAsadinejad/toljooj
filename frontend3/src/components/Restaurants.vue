@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       page:1,
-      limit:10,
+      limit:5,
       restaurants: [], // List of restaurants
       token: localStorage.getItem("token"), // Get token from localStorage
     };
@@ -60,7 +60,7 @@ export default {
   previousPage() {
       if (this.page > 1) {
         this.page--;
-        this.getRestaurants();
+        this.fetchRestaurants();
       }
     },
     getImageUrl(imageUrl){
