@@ -46,4 +46,3 @@ export class CreateOpenRestDto {
     restId: number;
     openHours: OpenRestDto[];
   }
-  

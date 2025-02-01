@@ -33,7 +33,7 @@ export class RestaurantController {
     ){
         const pageNumber = Number(page) || 1;
         const pageSize = Number(limit) || 5;
-        return this.restaurantService.getAllRestaurants()
+        return this.restaurantService.getAllRestaurants(pageNumber,pageSize);
     }
 
 
@@ -105,6 +105,29 @@ export class RestaurantController {
     @Get('open/:id/')
     async getOpenRestsByRestaurantId(@Param('id') id:number){
       return this.restaurantService.getOpenRestsByRestaurantId(id);
+    }
+
+
+    @Post('create/admin/')
+    @Roles(UserType.RestaurantManager,UserType.Admin)
+    @UseInterceptors(
+      FileInterceptor('image', {
+        storage: diskStorage({
+          destination: './uploads/restaurants',
+          filename: (req, file, cb) => {
+            const uniqueName = `${uuidv4()}-${file.originalname}`;
+            const fileName = `${uniqueName}`;
+            cb(null, fileName);
+          },
+        }),
+      }),
+    )
+    async createRestaurantForAdmin(
+      @UploadedFile() image,
+      @Body() restaurantData: RestaurantCreationInterface,
+    ) {
+      const imageUrl = image ? `/uploads/restaurants/${image.filename}` : DEFAULT_REST_IMAGE_URL;
+      return this.restaurantService.create({ ...restaurantData, imageUrl});
     }
   }
 
