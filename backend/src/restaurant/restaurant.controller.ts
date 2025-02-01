@@ -39,8 +39,6 @@ export class RestaurantController {
     @UseGuards(TokenAuthGuard)
     async getRestaurantById(
       @Param("id") id:number,
-      // @Query('page',ParseIntPipe) page?: number,
-      // @Query('limit',ParseIntPipe) limit?: number
     ){
         return this.restaurantService.getRestaurantWithDetails(id);
     }
@@ -102,10 +100,10 @@ export class RestaurantController {
     @Get('manager/all/')
     async getManagerRestaurants(
       @GetUser() user:UserInterface,
-      // @Query('page',ParseIntPipe) page?: number,
-      // @Query('limit',ParseIntPipe) limit?: number
+      @Query('page',ParseIntPipe) page?: number,
+      @Query('limit',ParseIntPipe) limit?: number
     ){
-      return this.restaurantService.getManagerRestaurants(user.id);
+      return this.restaurantService.getManagerRestaurants(user.id,page,limit);
     }
 
     @Get('open/:id/')

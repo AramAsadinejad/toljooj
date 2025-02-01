@@ -9,7 +9,7 @@
           <div v-for="order in orders" :key="order.cartId" class="order-card">
             <div class="order-header" @click="toggleOrderDetails(order.cartId)">
               <p class="restaurant-name">{{ order.restaurant.name }}</p>
-              <p class="delivery-fee">Delivery Fee: ${{ order.deliveryFee.toFixed(2) }}</p>
+              <p class="delivery-fee">Delivery Fee: ${{ order.deliveryFee }}</p>
               <span class="delete-icon" @click.stop="deleteOrder(order.cartId)">🗑️</span>
             </div>
   

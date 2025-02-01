@@ -8,6 +8,7 @@
         <router-link to="/restaurants" class="nav-link">Restaurants</router-link>
         <router-link to="/shoppingcart" class="nav-link">Shopping Cart</router-link>
         <router-link to="/orders" class="nav-link">Orders</router-link>
+        <router-link to="/logout" class="nav-link" @click="logout">Logout</router-link>
       </nav>
     </header>
   </template>
@@ -15,6 +16,13 @@
   <script>
   export default {
     name: "UserHeaders",
+
+    methods:{
+      logout() {
+        localStorage.removeItem('token');
+        this.$router.push('/');
+      }
+    }
   };
   </script>
   

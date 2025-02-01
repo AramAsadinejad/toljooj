@@ -47,6 +47,16 @@ export default {
       this.$router.push("/login"); // Redirect to login page
     } else {
       console.log(this.token);
+      axios.get('http://localhost:3000/user/me/',{headers: {Authorization: `Bearer ${this.token}`}})
+      .then(res=>{
+        console.log(res.data);
+        if (res.data.type == 'RestaurantManager') {
+          this.$router.push('/managerRestaurants');
+        }
+        else if (res.data.type == 'Admin') {
+          this.$router.push('/adminRestaurants');
+        } 
+      })
       this.fetchRestaurants(); // Fetch restaurants data
     }
   },

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { log } from 'console';
 import { AddressService } from 'src/address/address.service';
 import { DatabaseService } from 'src/database/database.service';
@@ -14,7 +14,11 @@ export class CartService {
 
     async getCarts(user:UserInterface) {
         const query = "select * from get_active_cart_details($1)";
+
         const address = await this.addressService.getDefaultAddress(user);
+        if (address==null){
+            throw new HttpException('Address not found', 400);
+        }
         const result = await this.dataBaseService.query(query,[address.address_id]);
         log(result);
         return this.formatCartDetails(result);

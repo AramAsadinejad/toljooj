@@ -149,6 +149,9 @@ export default {
         this.carts = response.data;
         console.log(this.carts);
       } catch (error) {
+        if (error.status === 400) {
+          alert("you need to set primary address first");
+        }
         console.error("Error fetching carts:", error);
         alert("Failed to get carts. Please try again.");
       }

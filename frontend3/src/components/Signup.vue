@@ -80,6 +80,7 @@
               password: this.formData.password,
             }).then(res=>{
               console.log(res.data);
+              localStorage.setItem("token",response.data.token);
               this.$router.push('/restaurants');
             })
             .catch(err=>{

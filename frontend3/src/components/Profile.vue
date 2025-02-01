@@ -98,7 +98,7 @@ export default {
             Authorization: `Bearer ${this.token}`,
           },
         });
-        console.log(response.data.addresses[0].value)
+        // console.log(response.data.addresses[0].value)
         this.username = response.data.user.username;
         this.addresses = response.data.addresses;
       } catch (error) {

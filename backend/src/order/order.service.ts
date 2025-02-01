@@ -102,6 +102,7 @@ export class OrderService {
             // If the cart is not already in the map, create the cart object
             if (!cartsMap.has(cartId)) {
                 cartsMap.set(cartId, {
+                    orderId:row.order_id,
                     cartId: row.cart_id,
                     deliveryFee: row.delivery_fee,
                     ispurchased: row.ispurchased,
