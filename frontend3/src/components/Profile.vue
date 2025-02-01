@@ -151,6 +151,7 @@ export default {
         this.addresses.push(response.data);
         this.newAddress = ""; // Clear the input field
         alert("Address added successfully!");
+        this.fetchUserProfile();
       } catch (error) {
         console.error("Error adding address:", error);
         alert("Failed to add address.");

@@ -142,7 +142,12 @@
       </div>
 
       
-
+      <!-- Paginator -->
+      <div class="paginator">
+        <button class="paginator-button" @click="previousPage" :disabled="page === 1">Previous</button>
+        <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
+        <button class="paginator-button" @click="nextPage" :disabled="page === totalPages">Next</button>
+      </div>
       
     </div>
   </div>
@@ -158,6 +163,8 @@ export default {
   },
   data() {
     return {
+      page:1,
+      limit:5,
       showAddRestaurantForm: false, // Toggle add form visibility
       showEditRestaurantForm: false, // Toggle edit form visibility
       newRestaurant: {
@@ -194,6 +201,18 @@ export default {
     }
   },
   methods: {
+    nextPage() {
+      
+      this.page++;
+      this.fetchRestaurants();
+    
+  },
+  previousPage() {
+      if (this.page > 1) {
+        this.page--;
+        this.getRestaurants();
+      }
+    },
     // Add a new opening hour field to the add form
     addOpeningHour() {
       this.newRestaurant.openingHours.push({ day: "Monday", open: "09:00", close: "18:00" });
@@ -668,5 +687,49 @@ input:focus {
 
 .order-button:hover {
   background-color: #6b4423; /* Dark brown on hover */
+}
+
+.paginator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.paginator-button {
+  background-color: #6a8e4b; /* Mustard */
+  color: #ffffff; /* White */
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.paginator-button:disabled {
+  background-color: #cccccc; /* Gray */
+  cursor: not-allowed;
+}
+
+.paginator-button:hover:not(:disabled) {
+  background-color: #024805; /* Dark green */
+}
+
+.page-info {
+  font-weight: bold;
+  color: #6b4423; /* Dark brown */
+}
+
+.limit-selector {
+  padding: 5px;
+  border: 1px solid #c49a6c; /* Mustard */
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+}
+
+.limit-selector:focus {
+  border-color: #6b4423; /* Dark brown */
 }
 </style>
