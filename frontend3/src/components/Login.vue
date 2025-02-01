@@ -46,6 +46,7 @@
           });
           console.log("Login successful:", response.data);
           localStorage.setItem("token",response.data.token);
+          
           this.$router.push('/restaurants')
           // Handle successful login, e.g., store token, redirect, etc.
         } catch (error) {
@@ -73,7 +74,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('@/assets/d913f51c6effa27b5bcbfc6aab84f95b.jpg') no-repeat center center;
+    background: url('@/assets/d913f51c6effa27b5bcbfc6aab84f95b.png') no-repeat center center;
     background-size: cover;
   }
   

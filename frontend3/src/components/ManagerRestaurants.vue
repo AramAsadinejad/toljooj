@@ -255,7 +255,7 @@ export default {
     async getRestaurants(){
       try {
         const response=await axios.get(
-          "http://localhost:3000/restaurant/manager/all/", {
+          `http://localhost:3000/restaurant/manager/all/`, {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },

@@ -51,11 +51,11 @@
       </div>
     </div>
     <!-- Paginator -->
-    <div class="paginator">
+    <!-- <div class="paginator">
         <button class="paginator-button" @click="previousPage" :disabled="page === 1">Previous</button>
         <span class="page-info">Page {{ page }} of {{ totalPages }}</span>
         <button class="paginator-button" @click="nextPage" :disabled="page === totalPages">Next</button>
-      </div>
+      </div> -->
   </div>
 </template>
 
@@ -116,7 +116,7 @@ export default {
     async fetchRestaurantDetails() {
       try {
         const response = await axios.get(
-          `http://localhost:3000/restaurant/${this.restaurant.id}?page=${this.page}&limit=${this.limit}`,
+          `http://localhost:3000/restaurant/${this.restaurant.id}/`,
           {
             headers: {
               Authorization: `Bearer ${this.token}`,
