@@ -24,6 +24,7 @@ export class CategoryController {
 
     @Put('update/:id/')
     async updateCategory(@Param('id') id:number,@Body('name') name:string){
+        console.log(name);
         return this.categoryService.updateCategory(id,name);
     }
 

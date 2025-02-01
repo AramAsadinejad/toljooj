@@ -4,8 +4,9 @@
         <h1>TOLJOOJ</h1>
       </div>
       <nav class="nav-links">
-        <router-link to="/adminusers" class="nav-link">Users</router-link>
+        
         <router-link to="/adminrestaurants" class="nav-link">Restaurants</router-link>
+        <router-link to="/adminusers" class="nav-link">Users</router-link>
         <router-link to="/adminorders" class="nav-link">Orders</router-link>
       </nav>
     </header>

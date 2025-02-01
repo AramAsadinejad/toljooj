@@ -8,6 +8,12 @@
           <h1>{{ restaurant.name }}</h1>
           <p>{{ restaurant.address }}</p>
           <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
+          <div class="opening-hours">
+          <h3>Opening Hours</h3>
+          <div v-for="(hour, index) in openingHours" :key="index" class="opening-hour-item">
+            <p>{{ hour.week_day }}: {{ hour.start_hour }} - {{ hour.end_hour }}</p>
+          </div>
+        </div>
         </div>
       </div>
   
@@ -211,6 +217,7 @@
       } else {
         this.restaurant.id = this.$route.params.restaurant_id;
         this.fetchRestaurantDetails();
+        this.fetchOpeningHours(this.restaurant.id);
       }
     },
     methods: {
@@ -236,6 +243,22 @@
           alert("Failed to fetch restaurant details.");
         }
       },
+      async fetchOpeningHours(restaurantId) {
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/restaurant/open/${restaurantId}/`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+          );
+          this.openingHours = response.data.opening_hours; // Store opening hours
+        } catch (error) {
+          console.error("Error fetching opening hours:", error);
+          alert("Failed to fetch opening hours. Please try again.");
+        }
+    },
       setActiveCategory(category) {
         this.activeCategory = category;
       },
@@ -258,7 +281,7 @@
       },
       async addCategory() {
         try {
-          const response = await axios.post(
+          await axios.post(
             `http://localhost:3000/category/create/${this.restaurant.id}`,
             {
               name: this.newCategoryName,
@@ -270,7 +293,7 @@
               },
             }
           );
-          this.restaurant.categories.push(response.data);
+          this.fetchRestaurantDetails();
           this.showAddCategoryForm = false;
           this.newCategoryName = "";
         } catch (error) {
@@ -283,10 +306,26 @@
         this.editCategoryName = category.name;
         this.showEditCategoryForm = true;
       },
-      saveCategoryEdit() {
-        if (this.editCategoryName) {
-          this.categoryToEdit.name = this.editCategoryName;
-          this.showEditCategoryForm = false;
+      async saveCategoryEdit() {
+        try {
+          console.log(this.editCategoryName);
+          await axios.put(
+            `http://localhost:3000/category/update/${this.categoryToEdit.id}/`,
+            { name: this.editCategoryName },
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+                
+              },
+            }
+          );
+  
+        //   Object.assign(this.itemToEdit, response.data);
+        this.fetchRestaurantDetails();
+          
+        } catch (error) {
+          console.error("Error updating category:", error);
+          alert("Failed to update category.");
         }
       },
       showAddItemForm(category) {
@@ -368,9 +407,10 @@
           if (this.editItem.photo) {
             formData.append("image", this.editItem.photo);
           }
-          const categoryIdsArray = Object.values(this.newItem.categoryIds);
+          const categoryIdsArray = Object.values(this.editItem.categoryIds);
           formData.append("categoryIds", categoryIdsArray);
-          const response = await axios.put(
+          console.log(categoryIdsArray);
+          await axios.put(
             `http://localhost:3000/item/update/${this.itemToEdit.id}/`,
             formData,
             {
@@ -381,7 +421,7 @@
             }
           );
   
-          Object.assign(this.itemToEdit, response.data);
+          this.fetchRestaurantDetails();
           this.cancelEditItemForm();
         } catch (error) {
           console.error("Error updating item:", error);
@@ -617,4 +657,57 @@
     border-radius: 5px;
     cursor: pointer;
   }
+  .restaurant-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+h1 {
+  color: white;
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+p {
+  color: white;
+  margin: 5px 0;
+}
+
+.min-purchase {
+  font-weight: bold;
+  color: #c49a6c; /* Mustard */
+}
+
+.opening-hours {
+  margin-top: 15px;
+}
+
+.opening-hours h3 {
+  color: #c49a6c; /* Mustard */
+  margin-bottom: 10px;
+}
+
+.opening-hour-item {
+  color: white;
+  margin: 5px 0;
+}
   </style>

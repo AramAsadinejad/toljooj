@@ -8,6 +8,12 @@
         <h1>{{ restaurant.name }}</h1>
         <p>{{ restaurant.address }}</p>
         <p class="min-purchase">Minimum Purchase: ${{ restaurant.min_purchase }}</p>
+        <div class="opening-hours">
+          <h3>Opening Hours</h3>
+          <div v-for="(hour, index) in openingHours" :key="index" class="opening-hour-item">
+            <p>{{ hour.day }}: {{ hour.open }} - {{ hour.close }}</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -27,6 +33,7 @@
           {{ category.name }}
         </button>
         <span class="edit-icon" @click="openEditCategoryForm(category)">✏️</span>
+        <span class="delete-icon" @click="deleteCategory(category.id)">🗑️</span>
       </div>
     </nav>
 
@@ -107,6 +114,7 @@
               <h3>{{ item.title }}</h3>
               <p class="item-price">${{ item.price }}</p>
               <span class="edit-icon" @click="openEditItemForm(item)">✏️</span>
+              <span class="delete-icon" @click.stop="deleteItem(item.id)">🗑️</span>
             </div>
           </div>
         </div>
@@ -145,8 +153,8 @@
 </template>
 
 <script>
-import ManagerHeader from "./ManagerHeader.vue";
 import axios from "axios";
+import ManagerHeader from "./ManagerHeader.vue";
 
 export default {
   name: "ManagerItems",
@@ -168,6 +176,7 @@ export default {
             name: "",
             items: [
               {
+                id: null,
                 title: "",
                 price: 0,
                 photo: null,
@@ -208,6 +217,7 @@ export default {
     } else {
       this.restaurant.id = this.$route.params.restaurant_id;
       this.fetchRestaurantDetails();
+      this.fetchOpeningHours(this.restaurantId);
     }
   },
   methods: {
@@ -233,13 +243,46 @@ export default {
         alert("Failed to fetch restaurant details.");
       }
     },
+    async fetchOpeningHours(restaurantId) {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/restaurant/open/${restaurantId}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        }
+      );
+      this.openingHours = response.data.opening_hours; // Store opening hours
+    } catch (error) {
+      console.error("Error fetching opening hours:", error);
+      alert("Failed to fetch opening hours. Please try again.");
+    }
+  },
     setActiveCategory(category) {
       this.activeCategory = category;
     },
+    async deleteCategory(categoryId) {
+      if (confirm("Are you sure you want to delete this category?")) {
+        try {
+          const response=await axios.delete(`http://localhost:3000/category/delete/${categoryId}/`, {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          });
+          console.log(response);
+          alert("category deleted successfully!");
+          this.fetchRestaurantDetails(); // Refresh the users list
+        } catch (error) {
+          console.error("Error deleting category:", error);
+          alert("Failed to delete category. Please try again.");
+        }
+      }
+    },
     async addCategory() {
       try {
-        const response = await axios.post(
-          "http://localhost:3000/category/create/",
+        await axios.post(
+          `http://localhost:3000/category/create/${this.restaurant.id}`,
           {
             name: this.newCategoryName,
             restaurant_id: this.restaurant.id,
@@ -250,7 +293,7 @@ export default {
             },
           }
         );
-        this.restaurant.categories.push(response.data);
+        this.fetchRestaurantDetails();
         this.showAddCategoryForm = false;
         this.newCategoryName = "";
       } catch (error) {
@@ -263,10 +306,26 @@ export default {
       this.editCategoryName = category.name;
       this.showEditCategoryForm = true;
     },
-    saveCategoryEdit() {
-      if (this.editCategoryName) {
-        this.categoryToEdit.name = this.editCategoryName;
-        this.showEditCategoryForm = false;
+    async saveCategoryEdit() {
+      try {
+        console.log(this.editCategoryName);
+        await axios.put(
+          `http://localhost:3000/category/update/${this.categoryToEdit.id}/`,
+          { name: this.editCategoryName },
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+              
+            },
+          }
+        );
+
+      //   Object.assign(this.itemToEdit, response.data);
+      this.fetchRestaurantDetails();
+        
+      } catch (error) {
+        console.error("Error updating category:", error);
+        alert("Failed to update category.");
       }
     },
     showAddItemForm(category) {
@@ -278,6 +337,23 @@ export default {
     },
     handleEditItemImageUpload(event) {
       this.editItem.photo = event.target.files[0];
+    },
+    async deleteItem(itemId) {
+      if (confirm("Are you sure you want to delete this item?")) {
+        try {
+          const response=await axios.delete(`http://localhost:3000/item/delete/${itemId}/`, {
+            headers: {
+              Authorization: `token ${this.token}`,
+            },
+          });
+          console.log(response);
+          alert("item deleted successfully!");
+          this.fetchRestaurantDetails(); // Refresh the users list
+        } catch (error) {
+          console.error("Error deleting item:", error);
+          alert("Failed to delete item. Please try again.");
+        }
+      }
     },
     async addItem(category) {
       try {
@@ -329,12 +405,13 @@ export default {
         formData.append("title", this.editItem.title);
         formData.append("price", this.editItem.price);
         if (this.editItem.photo) {
-          formData.append("photo", this.editItem.photo);
+          formData.append("image", this.editItem.photo);
         }
-        formData.append("category_ids", JSON.stringify(this.editItem.categoryIds));
-
-        const response = await axios.put(
-          `http://localhost:3000/item/${this.itemToEdit.id}/`,
+        const categoryIdsArray = Object.values(this.editItem.categoryIds);
+        formData.append("categoryIds", categoryIdsArray);
+        console.log(categoryIdsArray);
+        await axios.put(
+          `http://localhost:3000/item/update/${this.itemToEdit.id}/`,
           formData,
           {
             headers: {
@@ -344,7 +421,7 @@ export default {
           }
         );
 
-        Object.assign(this.itemToEdit, response.data);
+        this.fetchRestaurantDetails();
         this.cancelEditItemForm();
       } catch (error) {
         console.error("Error updating item:", error);
@@ -449,7 +526,8 @@ p {
   gap: 5px;
 }
 
-.edit-icon {
+.edit-icon,
+.delete-icon {
   cursor: pointer;
   font-size: 14px;
   color: #6b4423;
@@ -578,5 +656,58 @@ select[multiple] {
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
+}
+.restaurant-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header-image {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.header-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent black overlay */
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+}
+
+h1 {
+  color: white;
+  margin: 0;
+  font-size: 2.5rem;
+}
+
+p {
+  color: white;
+  margin: 5px 0;
+}
+
+.min-purchase {
+  font-weight: bold;
+  color: #c49a6c; /* Mustard */
+}
+
+.opening-hours {
+  margin-top: 15px;
+}
+
+.opening-hours h3 {
+  color: #c49a6c; /* Mustard */
+  margin-bottom: 10px;
+}
+
+.opening-hour-item {
+  color: white;
+  margin: 5px 0;
 }
 </style>
