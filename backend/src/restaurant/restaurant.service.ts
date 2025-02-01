@@ -17,17 +17,17 @@ export class RestaurantService {
     }
 
 
-    async getRestaurantWithDetails(restaurantId: number) {
+    async getRestaurantWithDetails(restaurantId: number,page=1,limit=5) {
       // console.log(restaurantId);
       
         const query = 'SELECT * from get_restaurant_details_with_manager($1)';
         const result =await this.databaseService.query<any>(query, [restaurantId]);
         console.log(result[0]);
         
-        return this.formatResponse(result);
+        return this.formatResponse(result,page,limit);
       }
     
-      private formatResponse(rawData: any[]) {
+      private formatResponse(rawData: any[],page=1,limit=5) {
         const response = {
           id: rawData[0]?.restaurant_id || null,
           name: rawData[0]?.restaurant_name || null,
@@ -60,6 +60,13 @@ export class RestaurantService {
           }
           // console.log(categoryMap);
           
+        });
+
+            // Paginate items for each category
+          categoryMap.forEach((category) => {
+            const startIndex = (page - 1) * limit;
+            const endIndex = startIndex + limit;
+            category.items = category.items.slice(startIndex, endIndex);
         });
     
         response.categories = Array.from(categoryMap.values());
@@ -158,9 +165,12 @@ export class RestaurantService {
     return `${time}:00`; // Convert "9:30" to "09:30:00"
   }
 
-  async getManagerRestaurants(managerId: number) {
+  async getManagerRestaurants(managerId: number,page:number=1,limit:number=5) {
     const query = `SELECT * FROM get_restaurants_by_manager($1)`;
-    return this.databaseService.query(query, [managerId]);
+    const startIndex:number = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    log(typeof page,typeof limit,typeof startIndex,typeof endIndex);
+    return (await this.databaseService.query(query, [managerId])).slice(startIndex, endIndex);
   }
 
   async getOpenRestsByRestaurantId(restaurantId: number) {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { TokenAuthGuard } from 'src/token/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -28,18 +28,20 @@ export class RestaurantController {
     @Get("all")
     @UseGuards(TokenAuthGuard)
     async getAllRestaurants(
-      @Query('page') page?: number,
-      @Query('limit') limit?: number
+      // @Query('page',ParseIntPipe) page?: number,
+      // @Query('limit',ParseIntPipe) limit?: number
     ){
-        const pageNumber = Number(page) || 1;
-        const pageSize = Number(limit) || 5;
-        return this.restaurantService.getAllRestaurants(pageNumber,pageSize);
+        return this.restaurantService.getAllRestaurants();//page,limit
     }
 
 
     @Get("/:id")
     @UseGuards(TokenAuthGuard)
-    async getRestaurantById(@Param("id") id:number){
+    async getRestaurantById(
+      @Param("id") id:number,
+      // @Query('page',ParseIntPipe) page?: number,
+      // @Query('limit',ParseIntPipe) limit?: number
+    ){
         return this.restaurantService.getRestaurantWithDetails(id);
     }
 
@@ -98,7 +100,11 @@ export class RestaurantController {
     }
 
     @Get('manager/all/')
-    async getManagerRestaurants(@GetUser() user:UserInterface){
+    async getManagerRestaurants(
+      @GetUser() user:UserInterface,
+      // @Query('page',ParseIntPipe) page?: number,
+      // @Query('limit',ParseIntPipe) limit?: number
+    ){
       return this.restaurantService.getManagerRestaurants(user.id);
     }
 
