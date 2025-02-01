@@ -31,14 +31,14 @@
       <div class="pending-orders">
         <h2>Pending Orders</h2>
         <div v-for="(order, index) in pendingOrders" :key="index" class="order-card red">
-          <h3>{{ order.restaurantName }}</h3>
-          <p class="delivery-address">Deliver to: {{ order.deliveryAddress }}</p>
+          <h3>{{ order.restaurant.name }}</h3>
+          <p class="delivery-address">Deliver to: {{ order.address.addressValue }}</p>
 
           <!-- Items in Order -->
           <div v-for="(item, itemIndex) in order.items" :key="itemIndex" class="order-item">
             <img :src="item.image" :alt="item.name" class="item-image" />
             <div class="item-details">
-              <p class="item-name">{{ item.name }}</p>
+              <p class="item-name">{{ item.title }}</p>
               <p class="item-quantity">Quantity: {{ item.quantity }}</p>
               <p class="item-price">Price: ${{ item.price }}</p>
             </div>
@@ -57,7 +57,7 @@
               <input
                 type="number"
                 id="deliveryPrice"
-                v-model="order.deliveryPrice"
+                v-model="delivery_fee"
                 placeholder="Enter delivery fee"
               />
             </div>
@@ -81,6 +81,7 @@ export default {
   },
   data() {
     return {
+      delivery_fee:0,
       // Example data for approved orders
       approvedOrders: [
       ],
@@ -106,18 +107,28 @@ export default {
       return "http://localhost:3000" + imageUrl;
     },
     // Approve an order
-    approveOrder(index) {
+    async approveOrder(index) {
       const order = this.pendingOrders[index];
-      if (!order.deliveryPrice || order.deliveryPrice <= 0) {
-        alert("Please enter a valid delivery price.");
-        return;
+      
+      try{
+        console.log(this.delivery_fee);
+        console.log(order.orderId);
+      await axios.patch(
+        `http://localhost:3000/order/set-status/${order.orderId}`,
+        { deliveryFee : this.delivery_fee },
+        {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          }
+      )
+      alert("Primary address updated successfully!");
+      this.fetchManagerOrders();
+      } catch (error) {
+        console.error("Error setting primary address:", error);
+        alert("Failed to set primary address.");
       }
-
-      // Update delivery fee and move to approved orders
-      order.deliveryFee = order.deliveryPrice;
-      this.approvedOrders.push(order);
-      this.pendingOrders.splice(index, 1);
-      alert("Order approved!");
+      
     },
 
     // Reject an order

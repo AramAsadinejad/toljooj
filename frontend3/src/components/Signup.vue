@@ -136,7 +136,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('@/assets/d913f51c6effa27b5bcbfc6aab84f95b.jpg') no-repeat center center;
+    background: url('@/assets/d913f51c6effa27b5bcbfc6aab84f95b.png') no-repeat center center;
     background-size: cover;
   }
   
