@@ -100,10 +100,8 @@ export class RestaurantController {
     @Get('manager/all/')
     async getManagerRestaurants(
       @GetUser() user:UserInterface,
-      @Query('page',ParseIntPipe) page?: number,
-      @Query('limit',ParseIntPipe) limit?: number
     ){
-      return this.restaurantService.getManagerRestaurants(user.id,page,limit);
+      return this.restaurantService.getManagerRestaurants(user.id);
     }
 
     @Get('open/:id/')

@@ -167,10 +167,8 @@ export class RestaurantService {
 
   async getManagerRestaurants(managerId: number,page:number=1,limit:number=5) {
     const query = `SELECT * FROM get_restaurants_by_manager($1)`;
-    const startIndex:number = (page - 1) * limit;
-    const endIndex = startIndex + limit;
     // log(typeof page,typeof limit,typeof startIndex,typeof endIndex);
-    return (await this.databaseService.query(query, [managerId])).slice(startIndex, endIndex);
+    return  this.databaseService.query(query, [managerId]);
   }
 
   async getOpenRestsByRestaurantId(restaurantId: number) {
