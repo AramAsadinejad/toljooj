@@ -16,6 +16,7 @@ export class CartService {
         const query = "select * from get_active_cart_details($1)";
         const address = await this.addressService.getDefaultAddress(user);
         const result = await this.dataBaseService.query(query,[address.address_id]);
+        log(result);
         return this.formatCartDetails(result);
 
     }
