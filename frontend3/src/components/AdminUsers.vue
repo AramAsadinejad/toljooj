@@ -83,8 +83,8 @@
             <h2>Edit Address</h2>
             <form @submit.prevent="submitEditAddressForm">
               <div class="form-group">
-                <label for="edit-address-id">Address ID</label>
-                <input type="text" id="edit-address-id" v-model="editAddress.addressId" disabled />
+                <label for="edit-address-id">Address </label>
+                <input type="text" id="edit-address-id" v-model="editAddress.value" disabled />
               </div>
               <div class="form-group">
                 <label for="edit-is-default">Is Default</label>
@@ -123,6 +123,7 @@
           type: "User",
         },
         editAddress: {
+          value:"",
           addressId: null,
           isDefault: false,
         },
@@ -243,6 +244,7 @@
           await axios.put(
             `http://localhost:3000/address/update/${this.editAddress.addressId}/`,
             {
+              value: this.editAddress.value,
               isDefault: this.editAddress.isDefault,
             },
             {

@@ -160,9 +160,9 @@ export default {
     // Set an address as primary
     async setPrimaryAddress(index) {
       try {
-        const addressId = this.addresses[index].id;
+        const addressId = this.addresses[index].address_id;
         await axios.patch(
-          `https://localhost:3000/address/set-primary/${addressId}`,
+          `https://localhost:3000/set-prime/${addressId}/`,
           {},
           {
             headers: {
