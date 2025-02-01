@@ -112,8 +112,9 @@ export default {
       
       try{
         console.log(this.delivery_fee);
+        console.log(order.orderId);
       await axios.patch(
-        `http://localhost:3000/order/set-status/${order.id}`,
+        `http://localhost:3000/order/set-status/${order.orderId}`,
         { deliveryFee : this.delivery_fee },
         {
             headers: {
