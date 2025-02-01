@@ -163,7 +163,7 @@ export default {
       try {
         const addressId = this.addresses[index].address_id;
         await axios.patch(
-          `https://localhost:3000/set-prime/${addressId}/`,
+          `http://localhost:3000/set-prime/${addressId}/`,
           {},
           {
             headers: {

@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       page:1,
-      limit:5,
+      limit:10,
       restaurants: [], // List of restaurants
       token: localStorage.getItem("token"), // Get token from localStorage
     };
