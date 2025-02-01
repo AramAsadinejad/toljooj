@@ -1,6 +1,6 @@
 <template>
     <div class="admin-users-page">
-      <UserHeaders />
+      <AdminHeader />
       <div class="admin-users-container">
         <!-- Left Side: Users List -->
         <div class="users-list">
@@ -17,7 +17,7 @@
             <!-- Addresses Dropdown -->
             <div v-if="expandedUser === user.userId" class="addresses-dropdown">
               <div v-for="address in user.addresses" :key="address.addressId" class="address-item">
-                <p class="address">Address ID: {{ address.addressId }} ({{ address.isDefault ? "Default" : "Not Default" }})</p>
+                <p class="address">{{ address.value }} ({{ address.isDefault ? "Default" : "Not Default" }})</p>
                 <div class="address-actions">
                   <span class="edit-icon" @click.stop="openEditAddressForm(address)">✏️</span>
                   <span class="delete-icon" @click.stop="deleteAddress(address.addressId)">🗑️</span>
@@ -100,13 +100,13 @@
   </template>
   
   <script>
-  import UserHeaders from "./UserHeader.vue";
+  import AdminHeader from "./AdminHeader.vue";
   import axios from "axios";
   
   export default {
     name: "AdminUser",
     components: {
-      UserHeaders,
+      AdminHeader,
     },
     data() {
       return {
@@ -265,12 +265,13 @@
       async deleteUser(userId) {
         if (confirm("Are you sure you want to delete this user?")) {
           try {
-            await axios.delete(`http://localhost:3000/user/delete/${userId}/`, {
+            console.log(userId);
+            const response=await axios.delete(`http://localhost:3000/user/delete/${userId}/`, {
               headers: {
                 Authorization: `token ${this.token}`,
               },
             });
-  
+            console.log(response);
             alert("User deleted successfully!");
             this.fetchUsers(); // Refresh the users list
           } catch (error) {
