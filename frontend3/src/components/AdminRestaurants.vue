@@ -257,7 +257,7 @@ export default {
     async getRestaurants(){
       try {
         const response=await axios.get(
-          `http://localhost:3000/restaurant/all?page=${this.page}&${this.limit}`, {
+          `http://localhost:3000/restaurant/all?page=${this.page}&limit=${this.limit}`, {
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
@@ -374,7 +374,7 @@ export default {
         const formData = new FormData();
         formData.append("name", this.editRestaurant.restaurant_name);
         formData.append("min_purchase", this.editRestaurant.min_purchase);
-        formData.append("delivery_radius", this.editRestaurant.delivery_radius);
+        formData.append("deliveryRadius", this.editRestaurant.delivery_radius);
         formData.append("address", this.editRestaurant.address);
         if (this.editRestaurant.image_url) {
           formData.append("image", this.editRestaurant.image_url);

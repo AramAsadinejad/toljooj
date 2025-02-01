@@ -136,7 +136,7 @@
             <p>Min Purchase: ${{ restaurant.min_purchase }}</p>
             <p>Delivery Radius: {{ restaurant.delivery_radius }} km</p>
             <button class="edit-button" @click="openEditForm(restaurant)">Edit</button>
-            <button class="order-button" @click="$router.push(`/restaurants/${restaurant.restaurant_id}`)">View Menu</button>
+            <button class="order-button" @click="$router.push(`/manageritems/${restaurant.restaurant_id}`)">View Menu</button>
           </div>
         </div>
       </div>
