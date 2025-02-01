@@ -8,7 +8,7 @@ import ShoppingCart from '@/components/ShoppingCart.vue';
 import Orders from '@/components/Orders.vue';
 import Items from '@/components/Items.vue';
 import ManagerRestaurants from '@/components/ManagerRestaurants.vue';
-import ManagerOrders from '@/components/managerorders.vue';
+import ManagerOrders from '@/components/ManagerOrders.vue';
 import ManagerItems from '@/components/ManagerItems.vue';
 import AdminRestaurants from '@/components/AdminRestaurants.vue';
 import AdminUsers from '@/components/AdminUsers.vue';

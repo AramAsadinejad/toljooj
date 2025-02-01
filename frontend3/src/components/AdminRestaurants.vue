@@ -207,7 +207,12 @@ export default {
         this.getRestaurants();
       
     },
-
+    previousPage() {
+      if (this.page > 1) {
+        this.page--;
+        this.getRestaurants();
+      }
+    },
     // Change the limit (items per page)
     changeLimit() {
       this.page = 1; // Reset to the first page

@@ -151,6 +151,7 @@ export default {
         this.addresses.push(response.data);
         this.newAddress = ""; // Clear the input field
         alert("Address added successfully!");
+        this.fetchUserProfile();
       } catch (error) {
         console.error("Error adding address:", error);
         alert("Failed to add address.");
@@ -160,9 +161,9 @@ export default {
     // Set an address as primary
     async setPrimaryAddress(index) {
       try {
-        const addressId = this.addresses[index].id;
+        const addressId = this.addresses[index].address_id;
         await axios.patch(
-          `https://localhost:3000/address/set-primary/${addressId}`,
+          `https://localhost:3000/set-prime/${addressId}/`,
           {},
           {
             headers: {
