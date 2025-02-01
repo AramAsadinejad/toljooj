@@ -60,7 +60,7 @@ export default {
   previousPage() {
       if (this.page > 1) {
         this.page--;
-        this.getRestaurants();
+        this.fetchRestaurants();
       }
     },
     getImageUrl(imageUrl){
